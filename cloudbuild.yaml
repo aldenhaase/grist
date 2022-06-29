@@ -1,0 +1,10 @@
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args: ['-c', 'gcloud config set app/cloud_build_timeout 600'] 
+  args: ['-c', 'mkdir server/go_app']
+  args: ['-c', 'cd ./client && ng build --output-path=../server/go_app/ && cd ..']
+  args: ['-c', 'cp app_config/app.yaml ./server/go_app']
+  args: ['-c', 'cp server/*.go server/go_app']
+  args: ['-c', 'gcloud app deploy server/go_app/app.yaml']
+timeout: '600s'
