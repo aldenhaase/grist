@@ -2,7 +2,7 @@
 
 echo "Building Client"
 cd ../client/
-ng build --delete-output-path true --output-path ../server/dist
+ng build --delete-output-path true
 cd ../server/
 echo "Starting Server"
 go run main.go & 
