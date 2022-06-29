@@ -5,6 +5,10 @@ client/out-tsc
   
 # dependencies  
 client/node_modules  
+
+#Angular cache
+
+client/.angular/cache
   
 # IDEs and editors  
 /.idea  
