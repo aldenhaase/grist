@@ -1,8 +1,7 @@
 steps:
--name: 'node'
-  entrypoint: 'npm'
-  args: ['install npm install -g @angular/cli']
+- name: 'node'
+  entrypoint: 'bash'
+  args: ['-c','cd client && npm install && npm install -g @angular/cli && source /root/.bashrc && ng build --output-path=../go-app ']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
-  args: ['-c','mkdir server/go_app && cp app_config/app.yaml server/go_app && find server/ -name "*.go" -exec cp {} server/go_app/ \; && cd client && ng build --output-path=../server/go_app/ && cd .. &&']
-#gcloud app deploy ./server/go_app/app.yaml
+  args: ['-c','cp app_config/app.yaml go-app/ && cp -r server/src/. go-app/ && gcloud app deploy go-app/app.yaml']
