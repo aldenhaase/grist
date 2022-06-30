@@ -3,9 +3,9 @@
 echo "Building Client"
 cd ../client/
 ng build --delete-output-path true
-cd ../server/
+cd ../server/src/
 echo "Starting Server"
-go run main.go & 
+go run main.go -dev & 
 _pid_run=$!
 sleep 1
 _pid_server=$(ps aux|grep '[g]o-build'|awk '{print $2}'|tr -d '\n')
