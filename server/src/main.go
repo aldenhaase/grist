@@ -13,7 +13,7 @@ func main() {
     if *devFlag {
         path = "../../client/dist/lystr/"
     } else{
-        path = "dist/lystr/"
+        path = "dist/"
     }
     http.Handle("/", http.FileServer(http.Dir(path)))
     log.Fatal(http.ListenAndServe(":8081", nil))
