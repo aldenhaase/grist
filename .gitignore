@@ -1,15 +1,15 @@
 # compiled output  
-go-app/dist
+go-app/
 src/client/tmp  
 src/client/out-tsc  
-#src/client/dist
+src/client/dist
   
 # dependencies  
-#src/client/node_modules  
+src/client/node_modules  
 
 #Angular cache
 
-#src/client/.angular/cache
+src/client/.angular/cache
   
 # IDEs and editors  
 /.idea  
