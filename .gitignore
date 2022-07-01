@@ -1,14 +1,15 @@
 # compiled output  
-client/dist  
-client/tmp  
-client/out-tsc  
+go-app/dist
+src/client/tmp  
+src/client/out-tsc  
+#src/client/dist
   
 # dependencies  
-client/node_modules  
+#src/client/node_modules  
 
 #Angular cache
 
-client/.angular/cache
+#src/client/.angular/cache
   
 # IDEs and editors  
 /.idea  
@@ -27,10 +28,10 @@ client/.angular/cache
 !.vscode/extensions.json  
   
 # misc  
-client/.sass-cache  
-client/connect.lock  
-client/coverage  
-client/libpeerconnection.log  
+src/client/.sass-cache  
+src/client/connect.lock  
+src/client/coverage  
+src/client/libpeerconnection.log  
 npm-debug.log  
 yarn-error.log  
 testem.log  
