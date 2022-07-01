@@ -3,19 +3,19 @@ package main
 import (
     "log"
     "net/http"
-    "flag"
+    "os"
 )
 
 func main() {
-    var devFlag = flag.Bool("dev",false, "change server root dir")
-    flag.Parse()
-    var path string
-    if *devFlag {
-        path = "../../client/dist/lystr/"
-    } else{
-        path = "dist/"
+
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080"
+        log.Printf("Defaulting to port %s", port)
     }
+
+    path := "dist/"
     http.Handle("/", http.FileServer(http.Dir(path)))
-    log.Fatal(http.ListenAndServe(":8081", nil))
+    log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
