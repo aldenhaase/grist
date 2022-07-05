@@ -1,0 +1,42 @@
+# compiled output  
+go-app/
+src/client/tmp  
+src/client/out-tsc  
+src/client/dist
+  
+# dependencies  
+src/client/node_modules  
+
+#Angular cache
+
+src/client/.angular/cache
+  
+# IDEs and editors  
+/.idea  
+.project  
+.classpath  
+.c9/  
+*.launch  
+.settings/  
+*.sublime-workspace  
+  
+# IDE - VSCode  
+.vscode/*  
+!.vscode/settings.json  
+!.vscode/tasks.json  
+!.vscode/launch.json  
+!.vscode/extensions.json  
+  
+# misc  
+src/client/.sass-cache  
+src/client/connect.lock  
+src/client/coverage  
+src/client/libpeerconnection.log  
+npm-debug.log  
+yarn-error.log  
+testem.log  
+client/typings  
+  
+# System Files  
+.DS_Store  
+Thumbs.db  
