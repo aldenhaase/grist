@@ -1,3 +1,4 @@
 #!/bin/bash
 
-cloud-build-local --config="../cloudbuild/build.yaml" --dryrun=false --push=false ../
+docker build -t aldenhaase/jic/temp_build:latest -f ../dockerbuild/Dockerfile ../
+docker image rm aldenhaase/jic/temp_build:latest
