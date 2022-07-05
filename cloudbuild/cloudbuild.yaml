@@ -1,7 +1,4 @@
 steps:
-- name: 'node'
+- name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
-  args: ['-c','cd src/client && npm install && npm install -g @angular/cli && source /root/.bashrc && ng build --output-path=../../go-app/dist ']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: 'bash'
-  args: ['-c','cp app_config/app.yaml go-app/ && cp -r src/server/src/. go-app/ && gcloud app deploy go-app/app.yaml']
+  args: ['-c','docker build -t temp_build -f dockerbuild/Dockerfile ./ && docker run temp_build']
