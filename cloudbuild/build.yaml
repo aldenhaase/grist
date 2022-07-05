@@ -1,0 +1,4 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker:latest'
+  entrypoint: 'bash'
+  args: ['-c','docker build -t aldenhaase/jic/temp_build:latest -f dockerbuild/Dockerfile ./']
