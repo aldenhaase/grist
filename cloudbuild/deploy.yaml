@@ -1,4 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
-  args: ['-c','docker build -t aldenhaase/jic/temp_build:latest -f dockerbuild/Dockerfile ./ && docker run aldenhaase/jic/temp_build:latest gcloud app deploy /workspace/go-app/app.yaml']
+  args: ['-c','docker build -t aldenhaase/jic/temp_build:latest -f dockerbuild/Dockerfile ./']
+  name: 'gcr.io/cloud-builders/gcloud-slim'
+  args: ['-c','app deploy /workspace/go-app/app.yaml']
