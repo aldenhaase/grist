@@ -1,4 +1,4 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker:latest'
+- name: 'aldenhaase/angular-go:base'
   entrypoint: 'bash'
-  args: ['-c','docker build -t aldenhaase/jic/temp_build:latest -f dockerbuild/Dockerfile ./']
+  args: ['-c',' /workspace/cloudbuild/exports.sh && source /root/.bashrc && /workspace/bin/build.sh']

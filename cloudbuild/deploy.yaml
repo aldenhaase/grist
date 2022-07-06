@@ -1,6 +1,4 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
+- name: 'aldenhaase/angular-go:base'
   entrypoint: 'bash'
-  args: ['-c','docker build -t aldenhaase/jic/temp_build:latest -f dockerbuild/Dockerfile ./']
-  name: 'gcr.io/cloud-builders/gcloud-slim'
-  args: ['app deploy /workspace/go-app/app.yaml']
+  args: ['-c',' /workspace/cloudbuild/exports.sh && source /root/.bashrc && /workspace/bin/build.sh && gcloud app deploy go-app/app.yaml']

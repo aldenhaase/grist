@@ -1,0 +1,2 @@
+import os
+os.system('/bin/bash -c "mkdir go-app/ && cp app_config/app.yaml go-app/ && cp -r src/server/src/ go-app/ && cd src/client && npm install && ng build --output-path=../go-app/dist && export PATH=$PATH:/usr/local/go/bin && python2 bin/runAPI.py --application=lystr-354722 app_config/app.yaml"')
