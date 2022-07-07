@@ -1,7 +1,7 @@
 steps:
 - name: 'aldenhaase/angular-go:base'
   entrypoint: 'bash'
-  args: ['-c',' /workspace/cloudbuild/exports.sh && source /root/.bashrc && /workspace/bin/build.sh']
+  args: ['-c',' /workspace/bin/build.sh']
   secretEnv: ['POSTMAN_API']
 availableSecrets:
   secretManager:

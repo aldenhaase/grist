@@ -6,6 +6,10 @@ import (
     "os"
 )
 
+func Test(num int)int{
+    return num;
+}
+
 func main() {
 
     port := os.Getenv("PORT")
