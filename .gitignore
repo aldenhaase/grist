@@ -3,7 +3,7 @@ go-app/
 src/client/tmp  
 src/client/out-tsc  
 src/client/dist
-  
+build/
 # dependencies  
 src/client/node_modules  
 
