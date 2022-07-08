@@ -7,15 +7,15 @@ import (
     "io"
     "fmt"
     "strings"
+    "regexp"
 )
+
+var dir = http.Dir("dist/")
+var fileserver = http.FileServer(dir)
+var jsType = regexp.MustCompile("\\.js$")
 
 func Test(num int)int{
     return num;
-}
-
-type logLine struct{
-    UserIP string `json:"user_ip"`
-    Event string `json:"event"`
 }
 
 func login(w http.ResponseWriter, req *http.Request){
@@ -24,8 +24,16 @@ func login(w http.ResponseWriter, req *http.Request){
     fmt.Fprintf(w,buf.String())
 }
 
+func index(w http.ResponseWriter, req *http.Request){
+    reqURI := req.RequestURI
+    if(jsType.MatchString(reqURI)){
+        w.Header().Set("Content-Type","text/javascript")
+    }
+    fileserver.ServeHTTP(w,req)
+}
+
 func setupHandlers(mux *http.ServeMux){
-    mux.Handle("/", http.FileServer(http.Dir("dist/")))
+    mux.HandleFunc("/", index)
     mux.HandleFunc("/login", login)
 }
 
