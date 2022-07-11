@@ -1,5 +1,6 @@
 #!/bin/bash
 mkdir "$APP_LOCATION"go-app/
+rm -r "$APP_LOCATION"build/
 mkdir "$APP_LOCATION"build/
 cp "$APP_CONFIG_LOCATION"app.yaml "$APP_LOCATION"go-app/
 cp -r "$SERVER_SOURCE_LOCATION"* "$APP_LOCATION"go-app/
