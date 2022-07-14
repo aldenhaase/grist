@@ -1,7 +1,7 @@
 steps:
 - name: 'aldenhaase/angular-go:base'
   entrypoint: 'bash'
-  args: ['-c',' /workspace/bin/build.sh && gcloud app deploy go-app/app.yaml']
+  args: ['-c',' /workspace/bin/build.sh && gcloud app deploy go-app/api.yaml && gcloud app deploy node-app/web.yaml']
   secretEnv: ['POSTMAN_API']
 availableSecrets:
   secretManager:

@@ -4,32 +4,19 @@ import (
     "log"
     "net/http"
     "os"
-    "io"
     "fmt"
-    "strings"
-    "regexp"
 )
 
-var dir = http.Dir("dist/")
-var fileserver = http.FileServer(dir)
-var jsType = regexp.MustCompile("\\.js$")
-
 func Test(num int)int{
-    return num;
+    return num
 }
 
 func login(w http.ResponseWriter, req *http.Request){
-    buf := new(strings.Builder)
-    io.Copy(buf, req.Body)
-    fmt.Fprintf(w,buf.String())
+    fmt.Fprint(w, "login information")
 }
 
 func index(w http.ResponseWriter, req *http.Request){
-    reqURI := req.RequestURI
-    if(jsType.MatchString(reqURI)){
-        w.Header().Set("Content-Type","text/javascript")
-    }
-    fileserver.ServeHTTP(w,req)
+    fmt.Fprint(w, "index information")
 }
 
 func setupHandlers(mux *http.ServeMux){

@@ -1,4 +1,4 @@
 #!/bin/bash
 cd /workspace
-#node start
+npm start
 go run main.go
