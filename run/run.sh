@@ -1,7 +1,7 @@
 #!/bin/bash
 cd ../src/client/
 ng build --delete-output-path --output-path=../../build/dist/
-cd .. && cd ..
+cd ../../
 docker build --no-cache --progress=plain -t tempbuild -f run/Dockerfile .
 docker run --name tempcont -d -p 8080:8080 tempbuild
 echo "App running -- press any key to kill"
