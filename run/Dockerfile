@@ -1,7 +1,7 @@
 FROM aldenhaase/angular-go:base
 RUN mkdir /workspace
-COPY build /workspace
+COPY src/client/dist/client/server /workspace
+COPY src/client/dist/client/browser /workspace/dist
 COPY src/server/api /workspace
-COPY src/server/web /workspace
-COPY bin/dirty_run.sh /workspace
-CMD  /workspace/dirty_run.sh
+COPY bin/dirty_run.py /workspace
+CMD  python2 /workspace/dirty_run.py
