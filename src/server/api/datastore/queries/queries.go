@@ -6,8 +6,25 @@ import (
 	"google.golang.org/appengine/v2/datastore"
 )
 
-func UserExists(ctx context.Context, username string) (bool, error) {
-	query := datastore.NewQuery(username)
+type UserExistsQueryResponse struct {
+	Exists bool   `json:"exists"`
+	Reason string `json:"reason"`
+}
+
+type UserExistsQueryRequest struct {
+	Username string `json:"username"`
+}
+
+type UserExistsQueryError struct {
+	Reason string
+}
+
+type User struct {
+	Username string `json:"username"`
+}
+
+func DoesUserExist(ctx context.Context, username string) (bool, error) {
+	query := datastore.NewQuery("")
 	query.Run(ctx)
 	num, err := query.Count(ctx)
 	if num > 0 {
