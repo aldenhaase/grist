@@ -1,4 +1,5 @@
 #!/bin/bash
+
 mkdir "$APP_LOCATION"go-app/
 mkdir "$APP_LOCATION"node-app/
 mkdir "$APP_LOCATION"node-app/dist/
@@ -18,13 +19,12 @@ if [ "$?" -ne "0" ]; then
   exit 1
 fi
 find -regex "./.*_test.*" | xargs mv -t /tmp
-python2 "$APP_LOCATION"bin/runAPI.py --application=lystr-354722 "$APP_LOCATION"go-app/api.yaml
+python2 "$APP_LOCATION"bin/runAPI.py --application=lystr-354722 "$APP_LOCATION"go-app/api.yaml --support_datastore_emulator=yes --port=8081
 if [ "$?" -ne "0" ]; then
   echo "API tests failed"
   exit 1
 fi
 cd "$APP_LOCATION"node-app/
-export PORT="8081"
 python2 "$APP_LOCATION"bin/runClient.py
 if [ "$?" -ne "0" ]; then
   echo "Client tests failed"
