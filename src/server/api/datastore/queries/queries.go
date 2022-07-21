@@ -24,9 +24,9 @@ type User struct {
 }
 
 func DoesUserExist(ctx context.Context, username string) (bool, error) {
-	query := datastore.NewQuery("")
-	query.Run(ctx)
-	num, err := query.Count(ctx)
+	query := datastore.NewQuery("user")
+	filt := query.Filter("Username =", username)
+	num, err := filt.Count(ctx)
 	if num > 0 {
 		return true, err
 	} else {
