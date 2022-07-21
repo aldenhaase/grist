@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  API_URL: "http://localhost:8081",
+  API_URL: "https://api.lystr.app",
   DIST_PATH: "/dist"
 };

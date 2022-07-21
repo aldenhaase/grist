@@ -7,3 +7,4 @@ availableSecrets:
   secretManager:
   - versionName: projects/lystr-354722/secrets/POSTMAN_API/versions/1
     env: 'POSTMAN_API'
+timeout: '1600s'
