@@ -1,0 +1,16 @@
+
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "CheckUsernameAvailability",
+    "description": "Used for queries checking username availability",
+    "type": "object",
+    "properties": {
+        "username": {
+            "descritpion": "The input string",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$"
+        }
+    },
+    "required": ["username"],
+    "additionalProperties": false
+}

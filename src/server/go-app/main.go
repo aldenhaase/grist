@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"server/datastore/queries"
+	"server/validate"
 
 	"google.golang.org/appengine/v2"
 	"google.golang.org/appengine/v2/datastore"
@@ -21,6 +22,9 @@ func enableCors(next http.Handler) http.Handler {
 		headers := req.Header.Get("Access-Control-Request-Headers")
 		(res).Header().Set("Access-Control-Allow-Headers", headers)
 		(res).Header().Set("Access-Control-Allow-Origin", "*")
+		if req.Method == http.MethodOptions {
+			return
+		}
 		next.ServeHTTP(res, req)
 	})
 }
@@ -28,35 +32,25 @@ func enableCors(next http.Handler) http.Handler {
 func limitBodySize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		//check what type of request and set body size
-		req.Body = http.MaxBytesReader(res, req.Body, 100)
+		req.Body = http.MaxBytesReader(res, req.Body, 200)
 		next.ServeHTTP(res, req)
 	})
 }
 
-func setUsername(res http.ResponseWriter, req *http.Request) {
+func registerNewUser(res http.ResponseWriter, req *http.Request) {
 	ctx := appengine.NewContext(req)
 	encoder := json.NewEncoder(res)
-	username, err := getUsername(req)
+	userInfo, err := getUserInfo(req)
 	if err != nil {
 		encoder.Encode(queries.UserExistsQueryError{Reason: err.Error()})
 		return
 	}
-	queryResults, err := queryUsername(res, req, ctx, *username)
+	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "userRecord", nil), &queries.UserExistsQueryRequest{Username: userInfo.Username, Password: userInfo.Password})
 	if err != nil {
-		encoder.Encode(queries.UserExistsQueryError{Reason: err.Error()})
+		encoder.Encode(queries.RegisterUserResponse{Status: 300, Error: err.Error()})
 		return
-	} else {
-		if queryResults.Exists {
-			encoder.Encode(queryResults)
-		} else {
-			_, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "user", nil), &queries.User{Username: username.Username})
-			if err != nil {
-				encoder.Encode(queries.UserExistsQueryError{Reason: err.Error()})
-				return
-			}
-			encoder.Encode("great")
-		}
 	}
+	encoder.Encode(queries.RegisterUserResponse{Status: 0, Error: ""})
 }
 
 func getUsername(req *http.Request) (*queries.UserExistsQueryRequest, error) {
@@ -68,6 +62,19 @@ func getUsername(req *http.Request) (*queries.UserExistsQueryRequest, error) {
 		return nil, err
 	} else {
 		return &username, nil
+	}
+
+}
+
+func getUserInfo(req *http.Request) (*queries.UserExistsQueryRequest, error) {
+	var userInfo queries.UserExistsQueryRequest
+	decoder := json.NewDecoder(req.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&userInfo)
+	if err != nil {
+		return nil, err
+	} else {
+		return &userInfo, nil
 	}
 
 }
@@ -109,7 +116,7 @@ func root(res http.ResponseWriter, req *http.Request) {
 
 func setupHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/checkUsername", checkUsername)
-	mux.HandleFunc("/setUsername", setUsername)
+	mux.HandleFunc("/registerNewUser", registerNewUser)
 	mux.HandleFunc("/", root)
 }
 
@@ -121,6 +128,6 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	setupHandlers(mux)
-	http.Handle("/", limitBodySize((enableCors(mux))))
+	http.Handle("/", enableCors(limitBodySize(validate.Json((mux)))))
 	appengine.Main()
 }

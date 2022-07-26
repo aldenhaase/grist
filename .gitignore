@@ -1,5 +1,5 @@
 # compiled output  
-go-app/
+src/server/go-app/server
 src/client/tmp  
 src/client/out-tsc  
 src/client/dist

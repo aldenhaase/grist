@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   API_URL: "http://localhost:8081",
-  DIST_PATH: "/workspace/dist"
+  DIST_PATH: "/dist/client/browser"
 };
 
 /*

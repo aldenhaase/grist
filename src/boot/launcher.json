@@ -1,0 +1,7 @@
+{
+    "name": "launcher",
+    "version": "0.0.0",
+    "scripts": {
+      "dev:ssr": "cd /workspace/client && ng run client:serve-ssr"
+    }
+}

@@ -13,10 +13,16 @@ type UserExistsQueryResponse struct {
 
 type UserExistsQueryRequest struct {
 	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type UserExistsQueryError struct {
 	Reason string
+}
+
+type RegisterUserResponse struct {
+	Status int    `json:"status"`
+	Error  string `json:"error"`
 }
 
 type User struct {
