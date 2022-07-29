@@ -33,13 +33,7 @@ export function app(): express.Express {
 
   // All regular routes use the Universal engine
   server.get('*', (req, res) => {
-    if(req.get("hello") == "yes"){
-    //res.status(301);
-    //res.set('Location','/login')
-    console.log("hello");
-    }else{
     res.render(indexHtml, { req, providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }] });
-    }
   });
 
   return server;

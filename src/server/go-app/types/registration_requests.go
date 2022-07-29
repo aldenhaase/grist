@@ -13,3 +13,8 @@ type RegisterNewUser struct {
 type Error struct {
 	Reason string `json:"reason"`
 }
+
+type UserRecord struct {
+	Username string
+	Password string
+}

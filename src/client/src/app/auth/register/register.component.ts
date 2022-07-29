@@ -1,6 +1,7 @@
 import { Component,} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -13,16 +14,17 @@ export class RegisterComponent{
   userReason: string = '';
   passValid: boolean = false;
   passReason: string = '';
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) { }
+    private observer = {
+      error: (error: any) => console.log("failed register new user"),
+      complete: () => this.router.navigate(['/login']),
+    }
 
   public async onSubmit() {
-    var hash = await this.digest(this.username)
+    var hash = await this.digest(this.password)
     var hashString = this.digestToString(hash)
-    this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString}).subscribe(data => {
-     if(data.status) {
-      console.log("error registering new user")
-     }
-    })
+    var registerReq = this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString});
+    registerReq.subscribe(this.observer)
   }
   private digestToString(buffer: ArrayBuffer){
     const byteArray = new Uint8Array(buffer);
@@ -43,12 +45,22 @@ export class RegisterComponent{
     return hash
   }
   public checkUsername(){      
-               this.http.post<usernameResponse>(environment.API_URL + "/checkUsername", {username: this.username}).subscribe(data => {
+    if(this.username.length < 1){
+      this.userValid = false;
+      this.userReason = "username must exist"
+      return
+    }
+        this.http.post<usernameResponse>(environment.API_URL + "/checkUsername", {username: this.username}).subscribe(data => {
         this.userValid = !data.exists;
         this.userReason = data.reason;
   })
   }
   public checkPassword(){
+    if(this.password.length < 1){
+      this.passValid = false;
+      this.passReason = "password must be longer than 1"
+      return
+    }
    this.passValid = true; 
   }
 

@@ -34,7 +34,6 @@ cp dist/client/server/* /node-app/
 mv dist/client/browser /node-app/dist
 mv boot_package.json /node-app/package.json
 cd /node-app/
-touch package-lock.json
 python2 /workspace/bin/runClient.py
 if [ "$?" -ne "0" ]; then
   echo "Client tests failed"
