@@ -11,12 +11,13 @@ import { environment } from 'src/environments/environment';
 export class LoginComponent{
     private observer = {
       error: (error: any) => console.log(error),
-      complete: () => this.router.navigate(['/home'])
+      complete: () => this.router.navigate(['/'])
     }
 
   password: string = '';
   username: string = '';
   loginValid: boolean = false;
+  formValid: boolean = false;
   constructor(private http: HttpClient,private router: Router) { }
 
   public async onSubmit() {
@@ -45,5 +46,13 @@ private async digest(text: string){
     var hash = await crypto.subtle.digest("SHA-256", encoded);
     return hash
   }
+
+public validateForm(){
+if(this.password.length < 1 || this.username.length < 1){
+      this.formValid = false;
+      return
+    }
+   this.formValid = true; 
+}
 
 }

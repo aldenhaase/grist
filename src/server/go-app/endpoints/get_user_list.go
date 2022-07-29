@@ -21,5 +21,6 @@ func GetUserList(res http.ResponseWriter, req *http.Request) {
 		encoder.Encode(err.Error())
 		return
 	}
-	encoder.Encode(map[string]interface{}{"listName": "MyList", "listItems": "hello"})
+	user := cookie[0].Name
+	encoder.Encode(map[string]interface{}{"listName": "MyList", "listItems": "hello " + user})
 }
