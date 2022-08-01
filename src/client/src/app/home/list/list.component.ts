@@ -20,7 +20,7 @@ export class ListComponent implements OnInit {
     getUserListReq.subscribe(this.observer);
   }
 
-
+  activeItems: string[] = ['item #1', "item #2"];
 }
 
 interface userList {

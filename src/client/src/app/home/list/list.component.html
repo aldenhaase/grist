@@ -1,1 +1,7 @@
 <p>{{list.listItems}}</p>
+
+<mat-selection-list>
+    <mat-list-option *ngFor="let item of activeItems">
+        {{item}}
+    </mat-list-option>
+</mat-selection-list>
