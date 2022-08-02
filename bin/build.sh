@@ -19,7 +19,7 @@ if [ "$?" -ne "0" ]; then
   exit 1
 fi
 find -regex "./.*_test.*" | xargs mv -t /tmp
-python2 /workspace/bin/runAPI.py --application=lystr-354722 /workspace/src/server/go-app/api.yaml --support_datastore_emulator=yes --port=8081
+python2 /workspace/bin/runAPI.py --application=lystr-354722 /workspace/src/server/go-app/test.yaml --support_datastore_emulator=yes --port=8081
 if [ "$?" -ne "0" ]; then
   echo "API tests failed"
   exit 1

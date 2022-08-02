@@ -2,7 +2,9 @@ package endpoints
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 	"server/crypto"
 	"server/datastore/queries"
 	"server/types"
@@ -37,12 +39,14 @@ func LogIn(res http.ResponseWriter, req *http.Request) {
 				return
 
 			}
+			log.Println(os.Getenv("DOMAIN"))
 			cookie := &http.Cookie{
 				Name:     userInfo.Username,
 				Value:    signature,
 				Expires:  time.Now().AddDate(1, 0, 1),
 				Secure:   true,
 				HttpOnly: true,
+				Domain:   os.Getenv("DOMAIN"),
 				SameSite: http.SameSiteStrictMode,
 			}
 			http.SetCookie(res, cookie)

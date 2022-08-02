@@ -1,7 +1,7 @@
 runtime: go115
 service: api
 automatic_scaling:
-  max_instances: 1
+  max_instances: 2
 app_engine_apis: true
 env_variables:
-  DOMAIN: "sub.localhost"
+  DOMAIN: "localhost"
