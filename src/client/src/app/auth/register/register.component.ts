@@ -23,7 +23,7 @@ export class RegisterComponent{
   public async onSubmit() {
     var hash = await this.digest(this.password)
     var hashString = this.digestToString(hash)
-    var registerReq = this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString});
+    var registerReq = this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString}, {withCredentials: true});
     registerReq.subscribe(this.observer)
   }
   private digestToString(buffer: ArrayBuffer){

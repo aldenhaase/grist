@@ -1,0 +1,10 @@
+steps:
+- name: 'aldenhaase/angular-go:base'
+  entrypoint: 'bash'
+  args: ['-c',' /workspace/bin/go_app_only_deploy.sh && gcloud app deploy /workspace/src/server/go-app/api.yaml']
+  secretEnv: ['POSTMAN_API']
+availableSecrets:
+  secretManager:
+  - versionName: projects/lystr-354722/secrets/POSTMAN_API/versions/1
+    env: 'POSTMAN_API'
+timeout: '1600s'

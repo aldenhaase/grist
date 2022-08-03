@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 	"server/crypto"
@@ -39,7 +38,6 @@ func LogIn(res http.ResponseWriter, req *http.Request) {
 				return
 
 			}
-			log.Println(os.Getenv("DOMAIN"))
 			cookie := &http.Cookie{
 				Name:     userInfo.Username,
 				Value:    signature,

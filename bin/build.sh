@@ -27,13 +27,14 @@ fi
 #cd "$APP_LOCATION"node-app/
 #python2 "$APP_LOCATION"bin/runClient.py
 cd /workspace/src/client
-mkdir /node-app/
-mv web.yaml /node-app/
-npm run build:ssr
-cp dist/client/server/* /node-app/
-mv dist/client/browser /node-app/dist
-mv boot_package.json /node-app/package.json
-cd /node-app/
+#mkdir /node-app/
+#mv web.yaml /node-app/
+#npm run build:ssr
+npm run build:dev
+#cp dist/client/server/* /node-app/
+#mv dist/client/browser /node-app/dist
+#mv boot_package.json /node-app/package.json
+#cd /node-app/
 python2 /workspace/bin/runClient.py
 if [ "$?" -ne "0" ]; then
   echo "Client tests failed"
