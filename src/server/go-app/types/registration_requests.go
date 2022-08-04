@@ -18,3 +18,9 @@ type UserRecord struct {
 	Username string
 	Password string
 }
+
+type RegistrationCookie struct {
+	UserIP     string
+	Expiration string
+	Signature  string
+}

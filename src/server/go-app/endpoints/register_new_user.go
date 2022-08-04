@@ -6,12 +6,16 @@ import (
 	"os"
 	"server/crypto"
 	"server/datastore/queries"
+	"server/types"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/appengine/v2"
 	"google.golang.org/appengine/v2/datastore"
 )
+
+const RegCookieName = "LREG"
 
 func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 	cookie, cookieExists := checkForRegistrationCookie(res, req)
@@ -22,6 +26,7 @@ func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 	}
 	userIP := ipArray[0]
 	if cookieExists {
+		println(req.Header.Get("Cookie"))
 		if validateRegistrationCookie(cookie, userIP) {
 			addNewUserToDatabase(res, req)
 			return
@@ -30,22 +35,12 @@ func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	} else {
-		val, err := crypto.HashPass(userIP + "secrete registration key")
+
+		cookie, err := generateCookie(userIP)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		cookie := &http.Cookie{
-			Name:     "LREG",
-			Value:    val,
-			Expires:  time.Now().AddDate(0, 1, 0),
-			Secure:   true,
-			HttpOnly: true,
-			Domain:   os.Getenv("DOMAIN"),
-			Path:     "/",
-			SameSite: http.SameSiteStrictMode,
-		}
-		//res.WriteHeader(http.StatusAccepted)
 		http.SetCookie(res, cookie)
 		return
 	}
@@ -91,8 +86,36 @@ func handleLocalhost(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func generateCookie(userIP string) (*http.Cookie, error) {
+	expiration := time.Now().AddDate(0, 0, 15)
+	formatedExpiration := expiration.Format(time.RFC3339)
+	signature, err := generateSignature(userIP, formatedExpiration)
+	if err != nil {
+		return nil, err
+	}
+	val := serializeCookieVals(&types.RegistrationCookie{
+		UserIP:     userIP,
+		Expiration: formatedExpiration,
+		Signature:  signature,
+	})
+	println(string(val))
+	if err != nil {
+		return nil, err
+	}
+	cookie := &http.Cookie{
+		Name:     RegCookieName,
+		Value:    val,
+		Expires:  expiration,
+		Secure:   true,
+		HttpOnly: true,
+		Domain:   os.Getenv("DOMAIN"),
+		SameSite: http.SameSiteStrictMode,
+	}
+	return cookie, nil
+}
+
 func checkForRegistrationCookie(res http.ResponseWriter, req *http.Request) (*http.Cookie, bool) {
-	cookie, err := req.Cookie("LYSTRREGISTRATION")
+	cookie, err := req.Cookie(RegCookieName)
 	if err != nil {
 		return nil, false
 	}
@@ -100,9 +123,16 @@ func checkForRegistrationCookie(res http.ResponseWriter, req *http.Request) (*ht
 }
 
 func validateRegistrationCookie(cookie *http.Cookie, userIP string) bool {
-	val := cookie.Value
-
-	err := bcrypt.CompareHashAndPassword([]byte(val), []byte(userIP+"secrete registration key"))
+	val := deserializeCookieVals(cookie.Value)
+	expiration, err := time.Parse(time.RFC3339, val.Expiration)
+	if err != nil {
+		println(err.Error())
+		return false
+	}
+	if time.Now().After(expiration) {
+		return false
+	}
+	err = validateSignature(userIP, val.Expiration, val.Signature)
 	return err == nil
 }
 
@@ -137,4 +167,32 @@ func addNewUserToDatabase(res http.ResponseWriter, req *http.Request) {
 	}
 	res.WriteHeader(http.StatusCreated)
 
+}
+
+func concatinateCookieString(userIP string, expiration string) string {
+	return userIP + expiration + "secrete registration Key"
+}
+
+func validateSignature(userIP string, expiration string, userSignature string) error {
+	correctSignature, err := generateSignature(userIP, expiration)
+	if err != nil {
+		return err
+	}
+	return bcrypt.CompareHashAndPassword([]byte(correctSignature), []byte(concatinateCookieString(userIP, expiration)))
+}
+func generateSignature(userIP string, expiration string) (string, error) {
+	return crypto.HashPass(concatinateCookieString(userIP, expiration))
+}
+
+func serializeCookieVals(source *types.RegistrationCookie) string {
+	return source.UserIP + "|" + source.Expiration + "|" + source.Signature
+}
+
+func deserializeCookieVals(source string) *types.RegistrationCookie {
+	values := strings.Split(source, "|")
+	return &types.RegistrationCookie{
+		UserIP:     values[0],
+		Expiration: values[1],
+		Signature:  values[2],
+	}
 }
