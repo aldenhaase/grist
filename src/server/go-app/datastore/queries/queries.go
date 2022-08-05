@@ -33,7 +33,7 @@ type User struct {
 }
 
 func DoesUserExist(ctx context.Context, username string) (bool, error) {
-	query := datastore.NewQuery("userRecord")
+	query := datastore.NewQuery("User_Record")
 	filt := query.Filter("Username =", username)
 	num, err := filt.Count(ctx)
 	if num > 0 {
