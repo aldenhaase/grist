@@ -45,7 +45,7 @@ func DoesUserExist(ctx context.Context, username string) (bool, error) {
 }
 
 func DoesPasswordMatch(ctx context.Context, userInfo types.UserRecord) error {
-	query := datastore.NewQuery("userRecord")
+	query := datastore.NewQuery("User_Record")
 	query = query.Filter("Username =", userInfo.Username)
 	record := []types.UserRecord{}
 	results, err := query.GetAll(ctx, &record)
