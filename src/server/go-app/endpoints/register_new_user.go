@@ -41,15 +41,17 @@ func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 }
 
 func extractUserIP(req *http.Request) string {
-	ipArray := req.Header["X-Forwarded-For"]
+	IPArray := req.Header["X-Forwarded-For"]
 	backupIPArray := req.Header["X-Appengine-Remote-Addr"]
-	if len(ipArray) < 1 {
+	if len(IPArray) < 1 {
 		if len(backupIPArray) < 1 {
 			return ""
 		}
 		return backupIPArray[0]
 	} else {
-		return ipArray[0]
+		IPWithPotentialProxies := IPArray[0]
+		primaryIP := strings.Split(IPWithPotentialProxies, ",")
+		return primaryIP[0]
 	}
 }
 
@@ -139,7 +141,7 @@ func addNewUserToDatabase(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "userRecord", nil), &queries.UserExistsQueryRequest{Username: userInfo.Username, Password: password})
+	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_Record", nil), &queries.UserExistsQueryRequest{Username: userInfo.Username, Password: password})
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
