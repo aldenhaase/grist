@@ -18,6 +18,7 @@ import (
 const RegCookieName = "LREG"
 
 func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
+	ctx := appengine.NewContext(req)
 	cookie, cookieExists := checkForRegistrationCookie(res, req)
 	ipArray := req.Header["X-Forwarded-For"]
 	if len(ipArray) < 1 {
@@ -28,6 +29,10 @@ func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 	if cookieExists {
 		println(req.Header.Get("Cookie"))
 		if validateRegistrationCookie(cookie, userIP) {
+			if queries.HasIpMetQuota(ctx, userIP) {
+				res.WriteHeader(http.StatusForbidden)
+				return
+			}
 			addNewUserToDatabase(res, req)
 			return
 		} else {
@@ -98,7 +103,6 @@ func generateCookie(userIP string) (*http.Cookie, error) {
 		Expiration: formatedExpiration,
 		Signature:  signature,
 	})
-	println(string(val))
 	if err != nil {
 		return nil, err
 	}

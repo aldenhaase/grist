@@ -62,3 +62,38 @@ func DoesPasswordMatch(ctx context.Context, userInfo types.UserRecord) error {
 	return bcrypt.CompareHashAndPassword([]byte(record[0].Password), []byte(userInfo.Password))
 
 }
+
+func HasIpMetQuota(ctx context.Context, ipAdress string) bool {
+	record := types.IP_Record{}
+	key := datastore.NewKey(ctx, "IP_Record", ipAdress, 0, nil)
+	err := datastore.Get(ctx, key, &record)
+	if err == nil {
+		if record.Num_Profiles < 5 {
+			incrementIPRecord(ctx, record, key)
+			return false
+		}
+		return true
+	}
+	if err == datastore.ErrNoSuchEntity {
+		generateIPRecord(ctx, record, key, ipAdress)
+		return false
+	}
+
+	return true
+}
+
+func generateIPRecord(ctx context.Context, record types.IP_Record, key *datastore.Key, ipAdress string) {
+	record.Num_Profiles = 0
+	_, err := datastore.Put(ctx, key, &record)
+	if err != nil {
+		println(err.Error())
+	}
+}
+
+func incrementIPRecord(ctx context.Context, record types.IP_Record, key *datastore.Key) {
+	record.Num_Profiles++
+	_, err := datastore.Put(ctx, key, &record)
+	if err != nil {
+		println(err.Error())
+	}
+}
