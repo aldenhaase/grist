@@ -20,11 +20,19 @@ export class RegisterComponent{
       complete: () => this.router.navigate(['/login']),
     }
 
+    private getCookieObserver = {
+      error: (error: any) => console.log("failed to get registration cookie"),
+      complete: async () => {
+        var hash = await this.digest(this.password)
+        var hashString = this.digestToString(hash)
+        var registerReq = this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString}, {withCredentials: true});
+        registerReq.subscribe(this.observer)
+      }
+    }
+
   public async onSubmit() {
-    var hash = await this.digest(this.password)
-    var hashString = this.digestToString(hash)
-    var registerReq = this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString}, {withCredentials: true});
-    registerReq.subscribe(this.observer)
+    var getRegCookies = this.http.get<registerUserResponse>(environment.API_URL + "/getRegistrationCookies", {withCredentials: true});
+    getRegCookies.subscribe(this.getCookieObserver)
   }
   private digestToString(buffer: ArrayBuffer){
     const byteArray = new Uint8Array(buffer);

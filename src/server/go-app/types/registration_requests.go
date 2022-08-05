@@ -24,6 +24,11 @@ type RegistrationCookie struct {
 	Expiration string
 	Signature  string
 }
+type Authentication_Cookie struct {
+	Username   string
+	Expiration string
+	Signature  string
+}
 
 type IP_Record struct {
 	Num_Profiles int

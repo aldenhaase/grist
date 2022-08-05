@@ -20,36 +20,37 @@ const RegCookieName = "LREG"
 func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 	ctx := appengine.NewContext(req)
 	cookie, cookieExists := checkForRegistrationCookie(res, req)
+	var userIP = extractUserIP(req)
+	if userIP == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !cookieExists {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !validateRegistrationCookie(cookie, userIP) {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if queries.HasIpMetQuota(ctx, userIP) {
+		res.WriteHeader(http.StatusForbidden)
+		return
+	}
+	addNewUserToDatabase(res, req)
+}
+
+func extractUserIP(req *http.Request) string {
 	ipArray := req.Header["X-Forwarded-For"]
+	backupIPArray := req.Header["X-Appengine-Remote-Addr"]
 	if len(ipArray) < 1 {
-		handleLocalhost(res, req)
-		return
-	}
-	userIP := ipArray[0]
-	if cookieExists {
-		println(req.Header.Get("Cookie"))
-		if validateRegistrationCookie(cookie, userIP) {
-			if queries.HasIpMetQuota(ctx, userIP) {
-				res.WriteHeader(http.StatusForbidden)
-				return
-			}
-			addNewUserToDatabase(res, req)
-			return
-		} else {
-			res.WriteHeader(http.StatusBadRequest)
-			return
+		if len(backupIPArray) < 1 {
+			return ""
 		}
+		return backupIPArray[0]
 	} else {
-
-		cookie, err := generateCookie(userIP)
-		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		http.SetCookie(res, cookie)
-		return
+		return ipArray[0]
 	}
-
 }
 
 func getUserInfo(req *http.Request) (*queries.UserExistsQueryRequest, error) {
@@ -63,32 +64,6 @@ func getUserInfo(req *http.Request) (*queries.UserExistsQueryRequest, error) {
 		return &userInfo, nil
 	}
 
-}
-
-func handleLocalhost(res http.ResponseWriter, req *http.Request) {
-	host := req.Header.Get("Origin")
-	if host == "http://localhost:4200" {
-		ctx := appengine.NewContext(req)
-		userExists, err := queries.DoesUserExist(ctx, "Localhost")
-		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-
-			return
-		}
-		if userExists {
-			res.WriteHeader(http.StatusBadRequest)
-
-			return
-		}
-
-		password, _ := crypto.HashPass("d9488dac9bc047ea92d12f6574e27f36967eb751c84e328f50febb636746a8e3")
-		datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "userRecord", nil), &queries.UserExistsQueryRequest{Username: "Localhost", Password: password})
-		return
-	} else {
-		res.WriteHeader(http.StatusBadRequest)
-
-		return
-	}
 }
 
 func generateCookie(userIP string) (*http.Cookie, error) {

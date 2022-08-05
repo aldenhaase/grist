@@ -7,6 +7,7 @@ import (
 	"server/crypto"
 	"server/datastore/queries"
 	"server/types"
+	"strings"
 	"time"
 
 	"google.golang.org/appengine/v2"
@@ -31,16 +32,25 @@ func LogIn(res http.ResponseWriter, req *http.Request) {
 			encoder.Encode(err.Error())
 			return
 		} else {
-			signature, err := crypto.HashPass(userInfo.Username + "secret Key")
+			expiration := time.Now().AddDate(0, 0, 15)
+			formatedExpiration := expiration.Format(time.RFC3339)
+			signature, err := generateAuthSignature(userInfo.Username, formatedExpiration)
 			if err != nil {
 				res.WriteHeader(http.StatusBadRequest)
-				encoder.Encode(err)
 				return
-
+			}
+			val := serializeAuthVals(&types.Authentication_Cookie{
+				Username:   userInfo.Username,
+				Expiration: formatedExpiration,
+				Signature:  signature,
+			})
+			if err != nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
 			}
 			cookie := &http.Cookie{
-				Name:     userInfo.Username,
-				Value:    signature,
+				Name:     "LAUTH",
+				Value:    val,
 				Expires:  time.Now().AddDate(1, 0, 1),
 				Secure:   true,
 				HttpOnly: true,
@@ -50,5 +60,26 @@ func LogIn(res http.ResponseWriter, req *http.Request) {
 			http.SetCookie(res, cookie)
 			encoder.Encode("Authorized")
 		}
+	}
+}
+
+func concatinateAuthString(userIP string, expiration string) string {
+	return userIP + expiration + "secret Key"
+}
+
+func generateAuthSignature(userIP string, expiration string) (string, error) {
+	return crypto.HashPass(concatinateAuthString(userIP, expiration))
+}
+
+func serializeAuthVals(source *types.Authentication_Cookie) string {
+	return source.Username + "|" + source.Expiration + "|" + source.Signature
+}
+
+func deserializeAuthVals(source string) *types.Authentication_Cookie {
+	values := strings.Split(source, "|")
+	return &types.Authentication_Cookie{
+		Username:   values[0],
+		Expiration: values[1],
+		Signature:  values[2],
 	}
 }
