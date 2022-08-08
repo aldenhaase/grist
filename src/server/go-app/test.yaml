@@ -5,3 +5,4 @@ automatic_scaling:
 app_engine_apis: true
 env_variables:
   DOMAIN: "localhost"
+  SERVER_SIG: "ServerSignature"

@@ -151,7 +151,7 @@ func addNewUserToDatabase(res http.ResponseWriter, req *http.Request) {
 }
 
 func concatinateCookieString(userIP string, expiration string) string {
-	return userIP + expiration + "secrete registration Key"
+	return userIP + expiration + os.Getenv("SERVER_SIG")
 }
 
 func validateSignature(userIP string, expiration string, userSignature string) error {

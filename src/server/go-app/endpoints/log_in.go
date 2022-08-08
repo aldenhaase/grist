@@ -64,7 +64,7 @@ func LogIn(res http.ResponseWriter, req *http.Request) {
 }
 
 func concatinateAuthString(userIP string, expiration string) string {
-	return userIP + expiration + "secret Key"
+	return userIP + expiration + os.Getenv("SERVER_SIG")
 }
 
 func generateAuthSignature(userIP string, expiration string) (string, error) {

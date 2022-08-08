@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"server/datastore/queries"
 
 	"google.golang.org/appengine/v2"
 )
 
 func CheckUsername(res http.ResponseWriter, req *http.Request) {
+	println("The env var is " + os.Getenv("SERVER_SIG"))
 	ctx := appengine.NewContext(req)
 	encoder := json.NewEncoder(res)
 	username, err := getUsername(req)
