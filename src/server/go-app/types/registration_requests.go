@@ -1,5 +1,9 @@
 package types
 
+import (
+	"google.golang.org/appengine/v2/datastore"
+)
+
 type CheckUserNameAvailability struct {
 	UserName    string `json:"userName"`
 	IsAvailable bool   `json:"isAvailable"`
@@ -17,6 +21,7 @@ type Error struct {
 type UserRecord struct {
 	Username string
 	Password string
+	ListID   *datastore.Key
 }
 
 type RegistrationCookie struct {
@@ -32,4 +37,8 @@ type Authentication_Cookie struct {
 
 type IP_Record struct {
 	Num_Profiles int
+}
+type User_List struct {
+	Title string
+	Items []string
 }

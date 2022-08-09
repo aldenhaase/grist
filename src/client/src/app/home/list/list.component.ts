@@ -8,22 +8,65 @@ import { Router } from '@angular/router';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
-    private observer = {
-      next: (data: userList) => this.list = data,
+    private initObserver = {
+      next: (data: User_List) => {
+        this.SyncedList.Title = data.Title || "";
+        this.SyncedList.Items = data.Items || [];
+    },
       error: (error: any) => this.router.navigate(['/login'])
     }
 
+    private getObserver ={
+      next: (data: User_List) => {
+        this.SyncedList.Title = data.Title || "";
+        this.SyncedList.Items = data.Items || [];
+      },
+      error: (error: any) => console.log(error),
+      complete: () => this.clearField()
+    }
+
+    private setObserver = {
+      complete: () => this.updateList(),
+      error: (error: any) => console.log(error),
+    }
+
   constructor(private http: HttpClient, private router: Router) { }
-  list = {} as userList;
+  public LocalList:User_List = {
+    Title: "",
+    Items: []
+  };
+  public SyncedList:User_List={
+    Title: "",
+    Items: []
+  }
+  newListItem = ""
   ngOnInit(): void {
-    const getUserListReq = this.http.get<userList>(environment.API_URL + '/getUserList', {withCredentials: true});
-    getUserListReq.subscribe(this.observer);
+    const getUserListReq = this.http.get<User_List>(environment.API_URL + '/getUserList', {withCredentials: true});
+    getUserListReq.subscribe(this.initObserver);
   }
 
-  activeItems: string[] = ['item #1', "item #2"];
+  public addListItem(){
+    const getUserListReq = this.http.post<User_List>(environment.API_URL + '/setUserList', this.LocalList, {withCredentials: true});
+    getUserListReq.subscribe(this.setObserver);
+  }
+
+  public clearField(){
+    this.newListItem = ""
+  }
+
+  public updateList(){
+    const getUserListReq = this.http.get<User_List>(environment.API_URL + '/getUserList', {withCredentials: true});
+    getUserListReq.subscribe(this.getObserver);
+  }
+
+  public onSubmit(){
+    this.LocalList.Items.push(this.newListItem)
+    this.addListItem()
+  }
 }
 
-interface userList {
-  listName: string;
-  listItems: Array<string>;
+interface User_List {
+  Title: string;
+  Items: Array<string>;
 }
+

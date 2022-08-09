@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"os"
 	"server/datastore/queries"
+	"server/types"
 
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/appengine/v2"
 )
 
-func GetUserList(res http.ResponseWriter, req *http.Request) {
+func SetUserList(res http.ResponseWriter, req *http.Request) {
 	encoder := json.NewEncoder(res)
 	cookieArr, err := req.Cookie("LAUTH")
 	if err != nil {
@@ -27,11 +28,29 @@ func GetUserList(res http.ResponseWriter, req *http.Request) {
 	}
 	ctx := appengine.NewContext(req)
 	user := cookie.Username
-	list, err := queries.GetUserList(user, ctx)
+	requestList, err := extractUserList(req)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
-		encoder.Encode("Could Not Query Userlist")
+		encoder.Encode("Failed to extract user list")
 		return
 	}
-	encoder.Encode(list)
+	err = queries.SetUserList(user, ctx, requestList)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		encoder.Encode("Failed to set new item")
+		return
+	}
+}
+
+func extractUserList(req *http.Request) (types.User_List, error) {
+	var list types.User_List
+	decoder := json.NewDecoder(req.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&list)
+	if err != nil {
+		return list, err
+	} else {
+		return list, nil
+	}
+
 }

@@ -97,3 +97,49 @@ func incrementIPRecord(ctx context.Context, record types.IP_Record, key *datasto
 		println(err.Error())
 	}
 }
+
+func GetUserList(username string, ctx context.Context) (types.User_List, error) {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return types.User_List{}, err
+	}
+	if len(results) != 1 {
+		return types.User_List{}, errors.New("big Problem")
+	}
+	if err != nil {
+		return types.User_List{}, errors.New("crypto.hashpass failed")
+	}
+	list := types.User_List{}
+	key := record[0].ListID
+	err = datastore.Get(ctx, key, &list)
+	if err != nil {
+		return list, err
+	}
+	return list, nil
+}
+
+func SetUserList(username string, ctx context.Context, listRecord types.User_List) error {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return err
+	}
+	if len(results) != 1 {
+		return errors.New("big Problem")
+	}
+	if err != nil {
+		return errors.New("crypto.hashpass failed")
+	}
+	key := record[0].ListID
+	list := listRecord.Items
+	if len(list) > 100 {
+		return errors.New("too many items")
+	}
+	_, err = datastore.Put(ctx, key, &listRecord)
+	return err
+}

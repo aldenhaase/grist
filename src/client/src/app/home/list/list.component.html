@@ -1,7 +1,17 @@
-<p>{{list.listItems}}</p>
+
+      <form #login="ngForm" (ngSubmit)="onSubmit()">
+<mat-form-field>
+    <input matInput placeholder="Add List Item" [(ngModel)]="newListItem" name="newListItem">
+    <mat-error>
+      Please provide a valid username
+    </mat-error>
+    <button mat-raised-button color="primary">Add Item</button>
+</mat-form-field>
+</form>
+
 
 <mat-selection-list>
-    <mat-list-option *ngFor="let item of activeItems">
+    <mat-list-option *ngFor="let item of SyncedList.Items">
         {{item}}
     </mat-list-option>
 </mat-selection-list>

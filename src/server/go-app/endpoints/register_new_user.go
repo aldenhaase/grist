@@ -30,11 +30,11 @@ func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if !validateRegistrationCookie(cookie, userIP) {
-		res.WriteHeader(http.StatusBadRequest)
+		res.WriteHeader(http.StatusConflict)
 		return
 	}
 	if queries.HasIpMetQuota(ctx, userIP) {
-		res.WriteHeader(http.StatusForbidden)
+		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	addNewUserToDatabase(res, req)
@@ -141,7 +141,12 @@ func addNewUserToDatabase(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_Record", nil), &queries.UserExistsQueryRequest{Username: userInfo.Username, Password: password})
+	listKey, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_List", nil), &types.User_List{Title: "default", Items: []string{}})
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_Record", nil), &types.UserRecord{Username: userInfo.Username, Password: password, ListID: listKey})
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return

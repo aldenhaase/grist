@@ -24,6 +24,7 @@ func setupHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/registerNewUser", validate.Json(endpoints.RegisterNewUser))
 	mux.HandleFunc("/logIn", validate.Json(endpoints.LogIn))
 	mux.HandleFunc("/getUserList", endpoints.GetUserList)
+	mux.HandleFunc("/setUserList", endpoints.SetUserList)
 	mux.HandleFunc("/getRegistrationCookies", endpoints.GetRegistrationCookies)
 	mux.HandleFunc("/", root)
 }
