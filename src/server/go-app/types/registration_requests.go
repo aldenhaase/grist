@@ -45,3 +45,6 @@ type User_List struct {
 type New_Item struct {
 	Item string
 }
+type Delete_List struct {
+	Items []string
+}

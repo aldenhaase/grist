@@ -10,8 +10,10 @@
 </form>
 
 
-<mat-selection-list>
-    <mat-list-option *ngFor="let item of LocalList.Items">
+<mat-selection-list #selectionList [(ngModel)]="SelectedListItems.Items">
+    <mat-list-option *ngFor="let item of LocalList.Items" [value]="item">
         {{item}}
     </mat-list-option>
 </mat-selection-list>
+
+<button mat-raised-button color="danger" [disabled]=!(SelectedListItems.Items) (click)="onDelete()">Delete Items</button>

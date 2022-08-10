@@ -150,3 +150,42 @@ func SetUserList(username string, ctx context.Context, newItem string) (types.Us
 	_, err = datastore.Put(ctx, key, &list)
 	return list, err
 }
+func DeleteListItem(username string, ctx context.Context, itemsToDelete []string) (types.User_List, error) {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return types.User_List{}, err
+	}
+	if len(results) != 1 {
+		return types.User_List{}, errors.New("big Problem")
+	}
+	if err != nil {
+		return types.User_List{}, errors.New("crypto.hashpass failed")
+	}
+
+	list := types.User_List{}
+	key := record[0].ListID
+	err = datastore.Get(ctx, key, &list)
+	if err != nil {
+		return types.User_List{}, err
+	}
+
+	for _, item := range itemsToDelete {
+		if index, res := contains(list.Items, item); res {
+			list.Items = append(list.Items[:index], list.Items[index+1:]...)
+		}
+	}
+	_, err = datastore.Put(ctx, key, &list)
+	return list, err
+}
+
+func contains(itemsToDelete []string, itemToCheck string) (int, bool) {
+	for index, item := range itemsToDelete {
+		if item == itemToCheck {
+			return index, true
+		}
+	}
+	return -1, false
+}
