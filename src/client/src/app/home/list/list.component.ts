@@ -10,23 +10,18 @@ import { Router } from '@angular/router';
 export class ListComponent implements OnInit {
     private initObserver = {
       next: (data: User_List) => {
-        this.SyncedList.Title = data.Title || "";
-        this.SyncedList.Items = data.Items || [];
+        this.LocalList.Title = data.Title || "";
+        this.LocalList.Items = data.Items || [];
     },
       error: (error: any) => this.router.navigate(['/login'])
     }
 
-    private getObserver ={
-      next: (data: User_List) => {
-        this.SyncedList.Title = data.Title || "";
-        this.SyncedList.Items = data.Items || [];
-      },
-      error: (error: any) => console.log(error),
-      complete: () => this.clearField()
-    }
-
     private setObserver = {
-      complete: () => this.updateList(),
+      next: (data: User_List) =>{
+        this.SyncList.Title = data.Title || "";
+        this.SyncList.Items = data.Items || [];
+      },
+      complete: () => this.mergeLists(),
       error: (error: any) => console.log(error),
     }
 
@@ -35,32 +30,39 @@ export class ListComponent implements OnInit {
     Title: "",
     Items: []
   };
-  public SyncedList:User_List={
+  public SyncList:User_List={
     Title: "",
     Items: []
   }
-  newListItem = ""
+  public NewListItem:New_Item = {
+    Item: ""
+  }
   ngOnInit(): void {
     const getUserListReq = this.http.get<User_List>(environment.API_URL + '/getUserList', {withCredentials: true});
     getUserListReq.subscribe(this.initObserver);
   }
 
   public addListItem(){
-    const getUserListReq = this.http.post<User_List>(environment.API_URL + '/setUserList', this.LocalList, {withCredentials: true});
+    const getUserListReq = this.http.post<User_List>(environment.API_URL + '/setUserList', this.NewListItem, {withCredentials: true});
     getUserListReq.subscribe(this.setObserver);
   }
 
-  public clearField(){
-    this.newListItem = ""
+  public mergeLists(){
+    this.SyncList.Items.forEach(item => {
+      if (!this.LocalList.Items.includes(item)){
+        this.LocalList.Items.push(item)
+      }
+    });
+    this.clearField()
   }
 
-  public updateList(){
-    const getUserListReq = this.http.get<User_List>(environment.API_URL + '/getUserList', {withCredentials: true});
-    getUserListReq.subscribe(this.getObserver);
+  public clearField(){
+    this.NewListItem.Item = ""
   }
+
 
   public onSubmit(){
-    this.LocalList.Items.push(this.newListItem)
+    this.LocalList.Items.push(this.NewListItem.Item)
     this.addListItem()
   }
 }
@@ -70,3 +72,6 @@ interface User_List {
   Items: Array<string>;
 }
 
+interface New_Item{
+  Item: string
+}

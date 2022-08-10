@@ -34,23 +34,24 @@ func SetUserList(res http.ResponseWriter, req *http.Request) {
 		encoder.Encode("Failed to extract user list")
 		return
 	}
-	err = queries.SetUserList(user, ctx, requestList)
+	list, err := queries.SetUserList(user, ctx, requestList)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		encoder.Encode("Failed to set new item")
 		return
 	}
+	encoder.Encode(list)
 }
 
-func extractUserList(req *http.Request) (types.User_List, error) {
-	var list types.User_List
+func extractUserList(req *http.Request) (string, error) {
+	var listItem types.New_Item
 	decoder := json.NewDecoder(req.Body)
 	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&list)
+	err := decoder.Decode(&listItem)
 	if err != nil {
-		return list, err
+		return listItem.Item, err
 	} else {
-		return list, nil
+		return listItem.Item, nil
 	}
 
 }

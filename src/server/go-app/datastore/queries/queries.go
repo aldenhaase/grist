@@ -121,25 +121,32 @@ func GetUserList(username string, ctx context.Context) (types.User_List, error) 
 	return list, nil
 }
 
-func SetUserList(username string, ctx context.Context, listRecord types.User_List) error {
+func SetUserList(username string, ctx context.Context, newItem string) (types.User_List, error) {
 	query := datastore.NewQuery("User_Record")
 	query = query.Filter("Username =", username)
 	record := []types.UserRecord{}
 	results, err := query.GetAll(ctx, &record)
 	if err != nil {
-		return err
+		return types.User_List{}, err
 	}
 	if len(results) != 1 {
-		return errors.New("big Problem")
+		return types.User_List{}, errors.New("big Problem")
 	}
 	if err != nil {
-		return errors.New("crypto.hashpass failed")
+		return types.User_List{}, errors.New("crypto.hashpass failed")
 	}
+
+	list := types.User_List{}
 	key := record[0].ListID
-	list := listRecord.Items
-	if len(list) > 100 {
-		return errors.New("too many items")
+	err = datastore.Get(ctx, key, &list)
+	if err != nil {
+		return types.User_List{}, err
 	}
-	_, err = datastore.Put(ctx, key, &listRecord)
-	return err
+
+	if len(list.Items) > 100 {
+		return types.User_List{}, errors.New("too many items")
+	}
+	list.Items = append(list.Items, newItem)
+	_, err = datastore.Put(ctx, key, &list)
+	return list, err
 }

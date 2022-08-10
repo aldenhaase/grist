@@ -1,17 +1,17 @@
 
       <form #login="ngForm" (ngSubmit)="onSubmit()">
 <mat-form-field>
-    <input matInput placeholder="Add List Item" [(ngModel)]="newListItem" name="newListItem">
+    <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
     <mat-error>
       Please provide a valid username
     </mat-error>
-    <button mat-raised-button color="primary">Add Item</button>
+    <button mat-raised-button color="primary" [disabled]=!(NewListItem.Item)>Add Item</button>
 </mat-form-field>
 </form>
 
 
 <mat-selection-list>
-    <mat-list-option *ngFor="let item of SyncedList.Items">
+    <mat-list-option *ngFor="let item of LocalList.Items">
         {{item}}
     </mat-list-option>
 </mat-selection-list>

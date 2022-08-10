@@ -42,3 +42,6 @@ type User_List struct {
 	Title string
 	Items []string
 }
+type New_Item struct {
+	Item string
+}
