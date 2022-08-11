@@ -1,19 +1,45 @@
+<div class = "ListContainer">
+<div class = "ListCard">
+<div class = "ListControls">
 
-      <form #login="ngForm" (ngSubmit)="onSubmit()">
-<mat-form-field>
-    <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
-    <mat-error>
-      Please provide a valid username
-    </mat-error>
-    <button mat-raised-button color="primary" [disabled]=!(NewListItem.Item)>Add Item</button>
-</mat-form-field>
-</form>
 
+    <mat-card>
+    <mat-card-content>
+
+    <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="onDelete()">
+    <mat-icon>delete</mat-icon>
+</button>
+
+<button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddItem()">
+    <mat-icon>{{AddorSub}}</mat-icon>
+</button>
+</mat-card-content>
+</mat-card>
+<mat-card *ngIf="hideAddItem">
+    <mat-card-content>
+        <form #AddListItem="ngForm" (ngSubmit)="onSubmit()">
+            <div class="addItem">
+            <mat-form-field>
+                <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
+            </mat-form-field>
+            <button mat-raised-button color="primary" [disabled]=!(NewListItem.Item)>Add</button>
+            </div>
+            </form>
+    </mat-card-content>
+</mat-card>
+</div>
+
+<div class ="ListItems">
+<mat-card>
+<mat-card-content>
 
 <mat-selection-list #selectionList [(ngModel)]="SelectedListItems.Items">
     <mat-list-option *ngFor="let item of LocalList.Items" [value]="item">
         {{item}}
     </mat-list-option>
 </mat-selection-list>
-
-<button mat-raised-button color="danger" [disabled]=!(SelectedListItems.Items) (click)="onDelete()">Delete Items</button>
+</mat-card-content>
+</mat-card>
+</div>
+</div>
+</div>

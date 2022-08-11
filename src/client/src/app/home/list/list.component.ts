@@ -51,6 +51,10 @@ export class ListComponent implements OnInit {
     Item: ""
   }
 
+  public hideAddItem:boolean = false;
+  
+  public AddorSub:string = "add"
+
   public SelectedListItems:Delete_Item = {
     Items: []
   }
@@ -100,6 +104,14 @@ export class ListComponent implements OnInit {
       })
       this.LocalList.Items=copy
       this.deleteListItem()
+  }
+  public toggleHideAddItem(){
+    this.hideAddItem = !this.hideAddItem;
+    if (this.hideAddItem){
+      this.AddorSub ="minimize"
+    }else{
+      this.AddorSub = "add"
+    }
   }
 
 }

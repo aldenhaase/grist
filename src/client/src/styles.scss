@@ -34,7 +34,46 @@ $client-theme: mat.define-light-theme((
 @include mat.all-component-themes($client-theme);
 
 /* You can add global styles to this file, and also import other style files */
+html, body { height: 100%}
+body { font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-.grecaptcha-badge { visibility: hidden; }
+.AuthenticationContainer{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-areas: 
+  ". . ."
+  ". main ."
+  "footer footer footer";
+}
+
+.AuthenticationCard{
+  grid-area: main; 
+  min-width: 320px;
+  width: 100%;
+  max-width: 500px;
+  margin:auto;
+}
+
+.AuthenticationHeader{
+  text-align: center;
+}
+
+
+.ListContainer{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-areas: 
+  ". . ."
+  ". main ."
+  "footer footer footer";
+}
+
+.ListCard{
+  grid-area: main; 
+  min-width: 320px;
+  width: 100%;
+  max-width: 500px;
+  margin:auto;
+}

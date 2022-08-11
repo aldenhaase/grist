@@ -1,7 +1,9 @@
+<div class="AuthenticationContainer">
+<div class = "AuthenticationCard">
 <mat-card>
     <mat-card-content>
       <form #login="ngForm" (ngSubmit)="onSubmit()">
-        <h2>Log In</h2>
+        <h2 class="AuthenticationHeader">Log In</h2>
         <mat-error *ngIf="loginValid">
           Invalid Credentials
         </mat-error>
@@ -11,17 +13,27 @@
             Please provide a valid username
           </mat-error>
         </mat-form-field>
+        <br>
         <mat-form-field>
           <input matInput type="password" placeholder="Password" [(ngModel)]="password" (ngModelChange) = "validateForm()" name="password" required>
           <mat-error>
             Please provide a valid password
           </mat-error>
         </mat-form-field>
+        <br>
         <button mat-raised-button color="primary" [disabled]=!(formValid)>Login</button>
       </form>
     </mat-card-content>
   </mat-card>
 
-  <nav>
-    <a routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">register</a>
-  </nav>
+
+
+  <mat-card>
+    <mat-card-content>
+      <nav>
+        <h3> Still need to register? <a routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">register</a></h3>
+      </nav>
+    </mat-card-content>
+    </mat-card>
+  </div>
+</div>
