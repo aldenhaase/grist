@@ -141,13 +141,24 @@ func addNewUserToDatabase(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	listKey, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_List", nil), &types.User_List{Title: "default", Items: []string{}})
+	listKey, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_List", nil), &types.User_List{Items: []string{}})
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_Record", nil), &types.UserRecord{Username: userInfo.Username, Password: password, ListID: listKey})
+	listKeyVal := listKey.Encode()
+	defaultListMap := make(map[string]string)
+	defaultListMap["default"] = listKeyVal
+	marshaledDefaultListMap, err := json.Marshal(defaultListMap)
 	if err != nil {
+		println(err.Error())
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	data := types.UserRecord{Username: userInfo.Username, Password: password, List_Array: marshaledDefaultListMap}
+	_, err = datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_Record", nil), &data)
+	if err != nil {
+		println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

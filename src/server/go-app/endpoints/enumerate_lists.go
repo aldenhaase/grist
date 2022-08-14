@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"os"
 	"server/datastore/queries"
+	"sort"
 
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/appengine/v2"
 )
 
-func GetUserList(res http.ResponseWriter, req *http.Request) {
+func EnumerateLists(res http.ResponseWriter, req *http.Request) {
 	encoder := json.NewEncoder(res)
 	cookieArr, err := req.Cookie("LAUTH")
 	if err != nil {
@@ -27,21 +28,17 @@ func GetUserList(res http.ResponseWriter, req *http.Request) {
 	}
 	ctx := appengine.NewContext(req)
 	user := cookie.Username
-	var listName string
-	decoder := json.NewDecoder(req.Body)
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&listName)
-	if err != nil {
-		println(err.Error())
-		res.WriteHeader(http.StatusInternalServerError)
-		encoder.Encode("Invalid Request Body")
-		return
-	}
-	list, err := queries.GetUserList(user, ctx, listName)
+	lists, err := queries.EnumerateLists(user, ctx)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
-		encoder.Encode("Could Not Query Userlist")
+		encoder.Encode("could not enumeratelists")
 		return
 	}
-	encoder.Encode(list)
+	var listNames []string
+	for key := range lists {
+		listNames = append(listNames, key)
+	}
+	sort.Strings(listNames)
+	res.WriteHeader(http.StatusAccepted)
+	encoder.Encode(listNames)
 }

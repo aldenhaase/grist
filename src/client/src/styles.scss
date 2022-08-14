@@ -63,7 +63,7 @@ body { font-family: Roboto, "Helvetica Neue", sans-serif; }
 .ListContainer{
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-rows: 10% 80% 10%;
   grid-template-areas: 
   ". . ."
   ". main ."

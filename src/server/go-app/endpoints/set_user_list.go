@@ -28,13 +28,13 @@ func SetUserList(res http.ResponseWriter, req *http.Request) {
 	}
 	ctx := appengine.NewContext(req)
 	user := cookie.Username
-	requestList, err := extractUserList(req)
+	requestList, err := extractUserData(req)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		encoder.Encode("Failed to extract user list")
 		return
 	}
-	list, err := queries.SetUserList(user, ctx, requestList)
+	list, err := queries.SetUserList(user, ctx, requestList.Item, requestList.List_Name)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		encoder.Encode("Failed to set new item")
@@ -43,15 +43,15 @@ func SetUserList(res http.ResponseWriter, req *http.Request) {
 	encoder.Encode(list)
 }
 
-func extractUserList(req *http.Request) (string, error) {
+func extractUserData(req *http.Request) (types.New_Item, error) {
 	var listItem types.New_Item
 	decoder := json.NewDecoder(req.Body)
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&listItem)
 	if err != nil {
-		return listItem.Item, err
-	} else {
-		return listItem.Item, nil
+		println(err.Error())
+		return listItem, err
 	}
+	return listItem, nil
 
 }

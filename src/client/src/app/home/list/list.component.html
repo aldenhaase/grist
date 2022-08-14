@@ -3,35 +3,48 @@
 <div class = "ListControls">
 
 
-    <mat-card>
-    <mat-card-content>
 
-    <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="onDelete()">
-    <mat-icon>delete</mat-icon>
-</button>
+    <mat-form-field appearance="fill">
+        <mat-label>Select a List</mat-label>
+         <mat-select [value]="userListArray[0]">
+          <mat-option *ngFor="let list of userListArray" [value]="list" (click)="swapList(list)">{{list}} </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddList()">
+        <mat-icon>{{AddorSubList}}</mat-icon>
+    </button>
 
-<button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddItem()">
-    <mat-icon>{{AddorSub}}</mat-icon>
-</button>
-</mat-card-content>
-</mat-card>
-<mat-card *ngIf="hideAddItem">
-    <mat-card-content>
-        <form #AddListItem="ngForm" (ngSubmit)="onSubmit()">
-            <div class="addItem">
-            <mat-form-field>
-                <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
-            </mat-form-field>
-            <button mat-raised-button color="primary" [disabled]=!(NewListItem.Item)>Add</button>
-            </div>
-            </form>
-    </mat-card-content>
-</mat-card>
+    <form #AddListItem="ngForm" (ngSubmit)="onSubmitList()" *ngIf="hideAddList">
+        <div class="addList">
+        <mat-form-field>
+            <input matInput placeholder="Add New List" [(ngModel)]="NewListName" name="NewListName">
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]=!(NewListName)>Add</button>
+        </div>
+        </form>
+
+
+
 </div>
 
 <div class ="ListItems">
 <mat-card>
 <mat-card-content>
+    <button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddItem()">
+        <mat-icon>{{AddorSub}}</mat-icon>
+    </button>
+
+    <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="onDelete()">
+        <mat-icon>delete</mat-icon>
+    </button>
+    <form #AddListItem="ngForm" (ngSubmit)="onSubmit()" *ngIf="hideAddItem">
+        <div class="addItem">
+        <mat-form-field>
+            <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]=!(NewListItem.Item)>Add</button>
+        </div>
+        </form>
 
 <mat-selection-list #selectionList [(ngModel)]="SelectedListItems.Items">
     <mat-list-option *ngFor="let item of LocalList.Items" [value]="item">

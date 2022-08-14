@@ -34,7 +34,7 @@ func DeleteListItem(res http.ResponseWriter, req *http.Request) {
 		encoder.Encode("Failed to extract user list")
 		return
 	}
-	list, err := queries.DeleteListItem(user, ctx, requestList)
+	list, err := queries.DeleteListItem(user, ctx, requestList.Items, requestList.List_Name)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		encoder.Encode("Failed to delete item")
@@ -43,15 +43,15 @@ func DeleteListItem(res http.ResponseWriter, req *http.Request) {
 	encoder.Encode(list)
 }
 
-func extractDeleteList(req *http.Request) ([]string, error) {
+func extractDeleteList(req *http.Request) (types.Delete_List, error) {
 	var listItem types.Delete_List
 	decoder := json.NewDecoder(req.Body)
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&listItem)
 	if err != nil {
-		return listItem.Items, err
+		return listItem, err
 	} else {
-		return listItem.Items, nil
+		return listItem, nil
 	}
 
 }

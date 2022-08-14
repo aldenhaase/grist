@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"server/types"
 
@@ -98,7 +99,7 @@ func incrementIPRecord(ctx context.Context, record types.IP_Record, key *datasto
 	}
 }
 
-func GetUserList(username string, ctx context.Context) (types.User_List, error) {
+func GetUserList(username string, ctx context.Context, listName string) (types.User_List, error) {
 	query := datastore.NewQuery("User_Record")
 	query = query.Filter("Username =", username)
 	record := []types.UserRecord{}
@@ -113,7 +114,12 @@ func GetUserList(username string, ctx context.Context) (types.User_List, error) 
 		return types.User_List{}, errors.New("crypto.hashpass failed")
 	}
 	list := types.User_List{}
-	key := record[0].ListID
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	key, err := datastore.DecodeKey(listArray[listName])
+	if err != nil {
+		return list, err
+	}
 	err = datastore.Get(ctx, key, &list)
 	if err != nil {
 		return list, err
@@ -121,7 +127,7 @@ func GetUserList(username string, ctx context.Context) (types.User_List, error) 
 	return list, nil
 }
 
-func SetUserList(username string, ctx context.Context, newItem string) (types.User_List, error) {
+func SetUserList(username string, ctx context.Context, newItem string, listName string) (types.User_List, error) {
 	query := datastore.NewQuery("User_Record")
 	query = query.Filter("Username =", username)
 	record := []types.UserRecord{}
@@ -137,7 +143,12 @@ func SetUserList(username string, ctx context.Context, newItem string) (types.Us
 	}
 
 	list := types.User_List{}
-	key := record[0].ListID
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	key, err := datastore.DecodeKey(listArray[listName])
+	if err != nil {
+		return list, err
+	}
 	err = datastore.Get(ctx, key, &list)
 	if err != nil {
 		return types.User_List{}, err
@@ -150,7 +161,7 @@ func SetUserList(username string, ctx context.Context, newItem string) (types.Us
 	_, err = datastore.Put(ctx, key, &list)
 	return list, err
 }
-func DeleteListItem(username string, ctx context.Context, itemsToDelete []string) (types.User_List, error) {
+func DeleteListItem(username string, ctx context.Context, itemsToDelete []string, listName string) (types.User_List, error) {
 	query := datastore.NewQuery("User_Record")
 	query = query.Filter("Username =", username)
 	record := []types.UserRecord{}
@@ -166,7 +177,12 @@ func DeleteListItem(username string, ctx context.Context, itemsToDelete []string
 	}
 
 	list := types.User_List{}
-	key := record[0].ListID
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	key, err := datastore.DecodeKey(listArray[listName])
+	if err != nil {
+		return list, err
+	}
 	err = datastore.Get(ctx, key, &list)
 	if err != nil {
 		return types.User_List{}, err
@@ -188,4 +204,85 @@ func contains(itemsToDelete []string, itemToCheck string) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+func CreateUserList(ctx context.Context) (string, error) {
+	listKey, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_List", nil), &types.User_List{Items: []string{}})
+	if err != nil {
+		return "", err
+	}
+	return listKey.Encode(), nil
+}
+
+func DoesListExist(username string, listName string, ctx context.Context) bool {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return true
+	}
+	println(len(results))
+	if len(results) != 1 {
+		return true
+	}
+	if err != nil {
+		return true
+	}
+	var listArray map[string]string
+	err = json.Unmarshal(record[0].List_Array, &listArray)
+	if err != nil {
+		return true
+	}
+	if _, contains := listArray[listName]; contains {
+		return true
+	}
+	return false
+}
+
+func AddUserList(key string, username string, listName string, ctx context.Context) error {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return err
+	}
+	println(len(results))
+	if len(results) != 1 {
+		return errors.New("big Problem")
+	}
+	if err != nil {
+		return errors.New("could not get user record")
+	}
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	listArray[listName] = key
+	listByteArray, err := json.Marshal(listArray)
+	if err != nil {
+		return err
+	}
+	record[0].List_Array = listByteArray
+	_, err = datastore.Put(ctx, results[0], &record[0])
+	return err
+}
+
+func EnumerateLists(username string, ctx context.Context) (map[string]string, error) {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return make(map[string]string), err
+	}
+	if len(results) != 1 {
+		return make(map[string]string), errors.New("big Problem")
+	}
+	if err != nil {
+		return make(map[string]string), errors.New("crypto.hashpass failed")
+	}
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+
+	return listArray, nil
 }
