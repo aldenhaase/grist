@@ -45,7 +45,7 @@ func queryUsername(res http.ResponseWriter, req *http.Request, ctx context.Conte
 		return nil, err
 	} else {
 		if userExists {
-			return &queries.UserExistsQueryResponse{Exists: true, Reason: "username unavailable"}, nil
+			return &queries.UserExistsQueryResponse{Exists: true, Reason: "List Name Already Taken"}, nil
 		} else {
 			return &queries.UserExistsQueryResponse{Exists: false, Reason: ""}, nil
 		}

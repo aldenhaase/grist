@@ -4,7 +4,7 @@
 <mat-card>
     <mat-card-content>
       <form #login="ngForm" (ngSubmit)="onSubmit()">
-        <h2 class ="AuthenticationHeader">Register</h2>
+        <h2 class ="AuthenticationHeader">Create List</h2>
         <mat-error *ngIf="!userValid && username.length > 0">
           {{userReason}}
         </mat-error>
@@ -12,9 +12,9 @@
           {{passValid}}
         </mat-error>
         <mat-form-field>
-          <input matInput placeholder="Username" [(ngModel)]="username" (ngModelChange) = "checkUsername()"name="username">
+          <input matInput placeholder="List Name" [(ngModel)]="username" (ngModelChange) = "checkUsername()"name="username">
           <mat-error>
-            Please enter a valid username
+            Please enter a valid list name
           </mat-error>
         </mat-form-field>
         <br>
@@ -25,7 +25,7 @@
           </mat-error>
         </mat-form-field>
         <br>
-        <button mat-raised-button color="primary" [disabled]="!((userValid) && (passValid))">Register</button>
+        <button mat-raised-button color="primary" [disabled]="!((userValid) && (passValid))">Create</button>
       </form>
     </mat-card-content>
   </mat-card>
@@ -33,7 +33,7 @@
   <mat-card>
   <mat-card-content>
     <nav>
-      <h3>Already have an account? <a routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">login</a></h3>
+      <h3>Already have a list? <a routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">login</a></h3>
     </nav>
   </mat-card-content>
   </mat-card>

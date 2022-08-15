@@ -8,9 +8,9 @@
           Invalid Credentials
         </mat-error>
         <mat-form-field>
-          <input matInput placeholder="username" [(ngModel)]="username" (ngModelChange) = "validateForm()" name="username" required>
+          <input matInput placeholder="list name" [(ngModel)]="username" (ngModelChange) = "validateForm()" name="username" required>
           <mat-error>
-            Please provide a valid username
+            Please provide a valid list name
           </mat-error>
         </mat-form-field>
         <br>
@@ -31,7 +31,7 @@
   <mat-card>
     <mat-card-content>
       <nav>
-        <h3> Still need to register? <a routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">register</a></h3>
+        <h3> Haven't created a list? <a routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">Create List</a></h3>
       </nav>
     </mat-card-content>
     </mat-card>

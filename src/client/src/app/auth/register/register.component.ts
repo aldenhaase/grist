@@ -16,7 +16,7 @@ export class RegisterComponent{
   passReason: string = '';
   constructor(private http: HttpClient, private router: Router) { }
     private observer = {
-      error: (error: any) => console.log("failed register new user"),
+      error: (error: any) => console.log("failed to create list"),
       complete: () => this.router.navigate(['/login']),
     }
 
@@ -55,7 +55,7 @@ export class RegisterComponent{
   public checkUsername(){      
     if(this.username.length < 1){
       this.userValid = false;
-      this.userReason = "username must exist"
+      this.userReason = "listname must exist"
       return
     }
         this.http.post<usernameResponse>(environment.API_URL + "/checkUsername", {username: this.username}).subscribe(data => {

@@ -3,7 +3,9 @@
 <div class = "ListControls">
 
 
-
+    <button mat-icon-button  aria-hidden="false" aria-label="Delete List Icon" (click)="onDeleteList()"[disabled]="!(userListArray.length > 1)" >
+        <mat-icon>delete</mat-icon>
+    </button>
     <mat-form-field appearance="fill" (click)="syncListArray()">
         <mat-label>Select a List</mat-label>
          <mat-select [(ngModel)]="currentList">
@@ -24,9 +26,7 @@
         </div>
         </form>
 
-        <button mat-icon-button  aria-hidden="false" aria-label="Delete List Icon" (click)="onDeleteList()"[disabled]="!(userListArray.length > 1)" >
-            <mat-icon>delete</mat-icon>
-        </button>
+
 
 
 
