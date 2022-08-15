@@ -1,13 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Observable, timer, Subscription, Subject } from 'rxjs';
+import { switchMap, tap, delay, share, retry, takeUntil } from 'rxjs/operators';
+
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent implements OnInit {
+export class ListComponent implements OnInit, OnDestroy {
+
+
+  private changes: Observable<boolean>;
+
+  private stopPolling = new Subject<void>();
+
+
   public currentList:string = ""
   
   public hideAddItem:boolean = false;
@@ -19,19 +30,27 @@ export class ListComponent implements OnInit {
   public AddorSubList:string ="add"
 
   public NewListName:string=""
+  
+  public listToDelete:string=""
 
   public userListArray:Array<string> = []
 
+  public syncUserListArray:Array<string> = []
+
   public LocalList:User_List = {
+    Last_Modified: "",
     Items: []
   };
   public SyncList:User_List={
+    Last_Modified: "",
     Items: []
   }
   public NewListItem:New_Item = {
     Item: "",
     List_Name: ""
   }
+
+  private platformId:string
 
 
 
@@ -51,17 +70,32 @@ export class ListComponent implements OnInit {
     private getObserver = {
       next: (data: User_List) => {
         this.SyncList.Items = data?.Items || [];
+        this.SyncList.Last_Modified = data?.Last_Modified || ""
     },
     complete:() =>{
       this.switchLists()
       this.clearField();
-
+      this.startPolling()
     },
       error: (error: any) => console.log(error)
     }
+
+    private syncObserver = {
+      next: (data: User_List) => {
+        this.SyncList.Items = data?.Items || [];
+        this.SyncList.Last_Modified = data?.Last_Modified || ""
+    },
+    complete:() =>{
+      this.mergeLists()
+    },
+      error: (error: any) => console.log(error)
+    }
+
+
     private setObserver = {
       next: (data: User_List) =>{
         this.SyncList.Items = data?.Items || [];
+        this.SyncList.Last_Modified = data?.Last_Modified || ""
       },
       complete: () => {
         this.mergeLists();
@@ -73,8 +107,7 @@ export class ListComponent implements OnInit {
 
     private addListObserver = {
       complete: () => {
-        this.enumerateListsRequest()
-
+        this.addRequest()
       },
       error: (error: any) => console.log(error),
     }
@@ -87,7 +120,52 @@ export class ListComponent implements OnInit {
       complete: () =>{
         this.currentList = this.userListArray[0]
         this.getList();//do something with undefined here
-        this.currentList = this.userListArray[0]
+      }
+    }
+
+    private addEnumerateObserver = {
+      next: (data: string[]) =>{
+        this.userListArray = data || [];
+            }, 
+      error: (error: any) => console.log(error),
+      complete: () =>{
+        this.currentList = this.NewListName
+        this.NewListName = ""
+        this.getList()
+      }
+    }
+    private deleteListObserver = {
+      error: (error: any) => console.log(error),
+    complete: () => {
+        this.listToDelete = ""
+      }
+    }
+
+    private changesObserver = {
+      next:(data: boolean) => {
+        if (data){
+          this.syncList()
+        }
+      },
+      error: (error: any) => console.log(error),
+    }
+
+    private listArrayChangeObserver = {
+      next:(data: boolean) => {
+        if (data){
+          this.enumMerge()
+        }
+      },
+      error: (error: any) => console.log(error),
+    }
+
+    private enumMergeObserver ={
+      next: (data: string[]) =>{
+        this.syncUserListArray = data || [];
+            }, 
+      error: (error: any) => console.log(error),
+      complete: () =>{
+        this.mergeListNameArray()
       }
     }
 
@@ -95,23 +173,52 @@ export class ListComponent implements OnInit {
     private deleteObserver = {
       next: (data: User_List) =>{
         this.SyncList.Items = data?.Items || [];
+        this.SyncList.Last_Modified = data?.Last_Modified || ""
       },
       complete: () => {
         this.mergeLists();
       },
       error: (error: any) => console.log(error),
     }
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) platformId:string) {
+    this.platformId = platformId
+    this.changes = timer(1, 3000).pipe(
+      switchMap(() => http.post<boolean>(environment.API_URL + '/checkForUpdates',  {List_Name: this.currentList, Last_Modified: this.LocalList.Last_Modified, List_Array: this.userListArray},{withCredentials: true})),
+      retry(10),
+      share(),
+      takeUntil(this.stopPolling)
+   );
+
+   }
 
   ngOnInit(): void {
     const getUserListReq = this.http.get<User_List>(environment.API_URL + '/checkAuth', {withCredentials: true});
     getUserListReq.subscribe(this.initObserver);
   }
 
+  public startPolling(){
+    if(isPlatformBrowser(this.platformId)){
+      this.changes.subscribe(this.changesObserver)
+    }
+  }
+
   public getList(){
-    
     const getUserListReq = this.http.post<User_List>(environment.API_URL + '/getUserList', JSON.stringify(this.currentList), {withCredentials: true});
     getUserListReq.subscribe(this.getObserver);
+  }
+
+  public enumMerge(){
+    const getUserListReq = this.http.get<string[]>(environment.API_URL + '/enumerateLists', {withCredentials: true});
+    getUserListReq.subscribe(this.enumMergeObserver);
+  }
+  public syncList() {
+    const getUserListReq = this.http.post<User_List>(environment.API_URL + '/getUserList', JSON.stringify(this.currentList), {withCredentials: true});
+    getUserListReq.subscribe(this.syncObserver);
+  }
+
+  public syncListArray(){
+   const sync = this.http.post<boolean>(environment.API_URL + '/checkListArray',  JSON.stringify(this.userListArray),{withCredentials: true})
+   sync.subscribe(this.listArrayChangeObserver)
   }
 
   public addListItem(){
@@ -127,11 +234,20 @@ export class ListComponent implements OnInit {
     getUserListReq.subscribe(this.enumerateObserver);
   }
 
+  public addRequest(){
+    const getUserListReq = this.http.get<string[]>(environment.API_URL + '/enumerateLists', {withCredentials: true});
+    getUserListReq.subscribe(this.addEnumerateObserver);
+  }
+
   public addNewList(){
     const getUserListReq = this.http.post<User_List>(environment.API_URL + '/createUserList', JSON.stringify(this.NewListName), {withCredentials: true});
     getUserListReq.subscribe(this.addListObserver);
   }
 
+public deleteList(){
+  const getUserListReq = this.http.post<User_List>(environment.API_URL + '/deleteUserList', JSON.stringify(this.listToDelete), {withCredentials: true});
+  getUserListReq.subscribe(this.deleteListObserver);
+}
   public deleteListItem(){
     this.SelectedListItems.List_Name = this.currentList
     const getUserListReq = this.http.post<User_List>(environment.API_URL + '/deleteListItem', this.SelectedListItems, {withCredentials: true});
@@ -143,12 +259,30 @@ export class ListComponent implements OnInit {
       if (!this.LocalList.Items.includes(item)){
         this.LocalList.Items.push(item)
       }
-    });
+    })
     this.LocalList.Items.forEach((item,index) => {
       if(!this.SyncList.Items.includes(item)){
             this.LocalList.Items.splice(index,1)
       }
-    });
+    })
+  }
+
+  public mergeListNameArray(){
+    if(!this.syncUserListArray.includes(this.currentList)){
+      alert("This List Has Been Deleted")
+      this.swapList(this.syncUserListArray[0])
+    }
+
+    this.syncUserListArray.forEach(item => {
+      if (!this.userListArray.includes(item)){
+        this.userListArray.push(item)
+      }
+    })
+    this.userListArray.forEach((item,index) => {
+      if(!this.syncUserListArray.includes(item)){
+            this.userListArray.splice(index,1)
+      }
+    })
   }
 
   public setCurrentList(listName:string){
@@ -167,6 +301,7 @@ export class ListComponent implements OnInit {
       this.SyncList.Items.forEach((item, index) => {
         this.LocalList.Items[index] = item
       })
+      this.LocalList.Last_Modified = this.SyncList.Last_Modified
   }
 
   public clearField(){
@@ -182,6 +317,8 @@ export class ListComponent implements OnInit {
 
   public onSubmitList(){
     this.addNewList()
+    this.hideAddList = false
+    this.AddorSubList = "add"
   }
 
 
@@ -192,6 +329,20 @@ export class ListComponent implements OnInit {
       })
       this.LocalList.Items=copy
       this.deleteListItem()
+  }
+
+  public onDeleteList(){
+    var index:number
+    if (this.userListArray.length === 2){
+      index = 0
+    }else{
+      index = (this.userListArray.indexOf(this.currentList)) % (this.userListArray.length - 1)
+    }
+    this.listToDelete = this.currentList
+    this.userListArray.splice(this.userListArray.indexOf(this.listToDelete), 1)
+    this.currentList = this.userListArray[index]
+      this.deleteList();
+      this.getList();
   }
   public toggleHideAddItem(){
     this.hideAddItem = !this.hideAddItem;
@@ -211,10 +362,15 @@ export class ListComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.stopPolling.next();
+ }
+
 }
 
 interface User_List {
-  Items: Array<string>;
+  Last_Modified: string
+  Items: Array<string>
 }
 
 

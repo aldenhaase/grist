@@ -25,11 +25,14 @@ func setupHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/registerNewUser", validate.Json(endpoints.RegisterNewUser))
 	mux.HandleFunc("/logIn", validate.Json(endpoints.LogIn))
 	mux.HandleFunc("/getUserList", endpoints.GetUserList)
+	mux.HandleFunc("/deleteUserList", endpoints.DeleteUserList)
 	mux.HandleFunc("/setUserList", endpoints.SetUserList)
 	mux.HandleFunc("/deleteListItem", endpoints.DeleteListItem)
 	mux.HandleFunc("/createUserList", endpoints.CreateUserList)
 	mux.HandleFunc("/enumerateLists", endpoints.EnumerateLists)
 	mux.HandleFunc("/getRegistrationCookies", endpoints.GetRegistrationCookies)
+	mux.HandleFunc("/checkForUpdates", endpoints.CheckForUpdates)
+	mux.HandleFunc("/checkListArray", endpoints.CheckListArray)
 	mux.HandleFunc("/", root)
 }
 

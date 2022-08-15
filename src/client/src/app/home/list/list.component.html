@@ -4,13 +4,14 @@
 
 
 
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="fill" (click)="syncListArray()">
         <mat-label>Select a List</mat-label>
-         <mat-select [value]="userListArray[0]">
+         <mat-select [(ngModel)]="currentList">
           <mat-option *ngFor="let list of userListArray" [value]="list" (click)="swapList(list)">{{list}} </mat-option>
         </mat-select>
-      </mat-form-field>
-      <button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddList()">
+    </mat-form-field>
+
+    <button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddList()">
         <mat-icon>{{AddorSubList}}</mat-icon>
     </button>
 
@@ -22,6 +23,10 @@
         <button mat-raised-button color="primary" [disabled]=!(NewListName)>Add</button>
         </div>
         </form>
+
+        <button mat-icon-button  aria-hidden="false" aria-label="Delete List Icon" (click)="onDeleteList()"[disabled]="!(userListArray.length > 1)" >
+            <mat-icon>delete</mat-icon>
+        </button>
 
 
 

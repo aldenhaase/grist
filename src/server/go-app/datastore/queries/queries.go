@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"server/types"
+	"sort"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/appengine/v2/datastore"
@@ -158,6 +161,7 @@ func SetUserList(username string, ctx context.Context, newItem string, listName 
 		return types.User_List{}, errors.New("too many items")
 	}
 	list.Items = append(list.Items, newItem)
+	list.Last_Modified = time.Now()
 	_, err = datastore.Put(ctx, key, &list)
 	return list, err
 }
@@ -193,6 +197,7 @@ func DeleteListItem(username string, ctx context.Context, itemsToDelete []string
 			list.Items = append(list.Items[:index], list.Items[index+1:]...)
 		}
 	}
+	list.Last_Modified = time.Now()
 	_, err = datastore.Put(ctx, key, &list)
 	return list, err
 }
@@ -207,7 +212,7 @@ func contains(itemsToDelete []string, itemToCheck string) (int, bool) {
 }
 
 func CreateUserList(ctx context.Context) (string, error) {
-	listKey, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_List", nil), &types.User_List{Items: []string{}})
+	listKey, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "User_List", nil), &types.User_List{Items: []string{}, Last_Modified: time.Now()})
 	if err != nil {
 		return "", err
 	}
@@ -267,6 +272,41 @@ func AddUserList(key string, username string, listName string, ctx context.Conte
 	return err
 }
 
+func DeleteUserList(username string, listName string, ctx context.Context) error {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return err
+	}
+	println(len(results))
+	if len(results) != 1 {
+		return errors.New("big Problem")
+	}
+	if err != nil {
+		return errors.New("could not get user record")
+	}
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	listToDelete := listArray[listName]
+	keyOfListToDelete, err := datastore.DecodeKey(listToDelete)
+	if err != nil {
+		return err
+	}
+	delete(listArray, listName)
+	listByteArray, err := json.Marshal(listArray)
+	if err != nil {
+		return err
+	}
+	record[0].List_Array = listByteArray
+	_, err = datastore.Put(ctx, results[0], &record[0])
+	if err != nil {
+		return err
+	}
+	return datastore.Delete(ctx, keyOfListToDelete)
+}
+
 func EnumerateLists(username string, ctx context.Context) (map[string]string, error) {
 	query := datastore.NewQuery("User_Record")
 	query = query.Filter("Username =", username)
@@ -285,4 +325,60 @@ func EnumerateLists(username string, ctx context.Context) (map[string]string, er
 	json.Unmarshal(record[0].List_Array, &listArray)
 
 	return listArray, nil
+}
+
+func HasRecordBeenModified(username string, listName string, lastModified time.Time, ctx context.Context) bool {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return false
+	}
+	if len(results) != 1 {
+		return false
+	}
+	if err != nil {
+		return false
+	}
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	listToCheck := listArray[listName]
+	keyOfListToCheck, err := datastore.DecodeKey(listToCheck)
+	if err != nil {
+		return false
+	}
+	var list types.User_List
+	err = datastore.Get(ctx, keyOfListToCheck, &list)
+	if err != nil {
+		return false
+	}
+	if list.Last_Modified.After(lastModified) {
+		return true
+	}
+	return false
+}
+
+func HasListArrayBeenModified(username string, arr []string, ctx context.Context) bool {
+	query := datastore.NewQuery("User_Record")
+	query = query.Filter("Username =", username)
+	record := []types.UserRecord{}
+	results, err := query.GetAll(ctx, &record)
+	if err != nil {
+		return false
+	}
+	if len(results) != 1 {
+		return false
+	}
+	if err != nil {
+		return false
+	}
+	var listArray map[string]string
+	json.Unmarshal(record[0].List_Array, &listArray)
+	var listNames []string
+	for key := range listArray {
+		listNames = append(listNames, key)
+	}
+	sort.Strings(listNames)
+	return !reflect.DeepEqual(listNames, arr)
 }
