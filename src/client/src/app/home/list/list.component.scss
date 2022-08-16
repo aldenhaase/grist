@@ -1,7 +1,18 @@
-.ListControls {
+.ListBody {
     width: 100%;
     display: flex;
     flex-direction: row-reverse;
-    flex-wrap: wrap;
-    padding-bottom: 30px;
+    padding-bottom: 100px;
+}
+
+.ListContent{
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin: auto;
+    max-width: 80%;
+}
+
+.ListContentControls{
+    display: flex;
+    justify-content: center;
 }

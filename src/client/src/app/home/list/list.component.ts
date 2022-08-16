@@ -4,8 +4,15 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, timer, Subscription, Subject } from 'rxjs';
 import { switchMap, tap, delay, share, retry, takeUntil } from 'rxjs/operators';
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+
 
 import { Router } from '@angular/router';
+
+export interface DialogData {
+  listName: string
+}
+
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -32,6 +39,8 @@ export class ListComponent implements OnInit, OnDestroy {
   public NewListName:string=""
   
   public listToDelete:string=""
+
+  public activeTab:number = 0
 
   public userListArray:Array<string> = []
 
@@ -130,6 +139,7 @@ export class ListComponent implements OnInit, OnDestroy {
       error: (error: any) => console.log(error),
       complete: () =>{
         this.currentList = this.NewListName
+        this.activeTab = this.userListArray.indexOf(this.currentList)
         this.NewListName = ""
         this.getList()
       }
@@ -180,7 +190,7 @@ export class ListComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => console.log(error),
     }
-  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) platformId:string) {
+  constructor(public dialog: MatDialog, private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) platformId:string) {
     this.platformId = platformId
     this.changes = timer(1, 3000).pipe(
       switchMap(() => http.post<boolean>(environment.API_URL + '/checkForUpdates',  {List_Name: this.currentList, Last_Modified: this.LocalList.Last_Modified, List_Array: this.userListArray},{withCredentials: true})),
@@ -190,6 +200,33 @@ export class ListComponent implements OnInit, OnDestroy {
    );
 
    }
+
+   openDialog(): void {
+    const dialogRef = this.dialog.open(AddListDialog, {
+      width: '250px',
+      data:{listName: ""}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+      this.NewListName = result
+      this.onSubmitList()
+      }
+    });
+  }
+
+  openDeleteDialog(): void {
+    const dialogRef = this.dialog.open(DeleteListDialog, {
+      width: '250px',
+      data:{listName: this.currentList}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        this.onDeleteList()
+      }
+    });
+  }
 
   ngOnInit(): void {
     const getUserListReq = this.http.get<User_List>(environment.API_URL + '/checkAuth', {withCredentials: true});
@@ -287,6 +324,7 @@ public deleteList(){
 
   public setCurrentList(listName:string){
     this.currentList = listName
+    this.activeTab = this.userListArray.indexOf(this.currentList)
   }
 
   public swapList(listName:string){
@@ -341,6 +379,7 @@ public deleteList(){
     this.listToDelete = this.currentList
     this.userListArray.splice(this.userListArray.indexOf(this.listToDelete), 1)
     this.currentList = this.userListArray[index]
+    this.activeTab = this.userListArray.indexOf(this.currentList)
       this.deleteList();
       this.getList();
   }
@@ -383,4 +422,35 @@ interface New_Item{
 interface Delete_Item{
   Items: string[]
   List_Name: string
+}
+
+
+@Component({
+  selector: 'add-list-dialog',
+  templateUrl: 'add-user-list-dialog.html',
+})
+export class AddListDialog {
+  constructor(
+    public dialogRef: MatDialogRef<AddListDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+  ) {}
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+}
+
+@Component({
+  selector: 'delete-list-dialog',
+  templateUrl: 'delete-list-dialog.html',
+})
+export class DeleteListDialog {
+  constructor(
+    public dialogRef: MatDialogRef<DeleteListDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+  ) {}
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
 }

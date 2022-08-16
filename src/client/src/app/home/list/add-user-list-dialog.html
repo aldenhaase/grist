@@ -1,0 +1,11 @@
+<form #AddListItem="ngForm">
+    <div class="addList">
+    <mat-form-field>
+        <input matInput [(ngModel)]="data.listName" placeholder="Add New List" name="Add New List">
+    </mat-form-field>
+    </div>
+    </form>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">Cancel</button>
+        <button mat-button [mat-dialog-close]="data.listName" cdkFocusInitial>Submit</button>
+      </div>

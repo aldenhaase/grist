@@ -1,63 +1,55 @@
 <div class = "ListContainer">
 <div class = "ListCard">
-<div class = "ListControls">
+<div class = "ListBody">
 
 
-    <button mat-icon-button  aria-hidden="false" aria-label="Delete List Icon" (click)="onDeleteList()"[disabled]="!(userListArray.length > 1)" >
-        <mat-icon>delete</mat-icon>
-    </button>
-    <mat-form-field appearance="fill" (click)="syncListArray()">
-        <mat-label>Select a List</mat-label>
-         <mat-select [(ngModel)]="currentList">
-          <mat-option *ngFor="let list of userListArray" [value]="list" (click)="swapList(list)">{{list}} </mat-option>
-        </mat-select>
-    </mat-form-field>
+        <button [ngStyle]="{width: '30px'}" mat-icon-button [matMenuTriggerFor]="menu" aria-label="List Control Menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+    
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item  aria-hidden="false" aria-label="Add List Button" (click)="openDialog()">
+                <span>Add List</span>
+            </button>
+            <button mat-menu-item aria-hidden="false" aria-label="Delete List Button" (click)="openDeleteDialog()"[disabled]="!(userListArray.length > 1)">
+                <span>Delete List</span>
+            </button>
+            
+    
+          </mat-menu>
 
-    <button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddList()">
-        <mat-icon>{{AddorSubList}}</mat-icon>
-    </button>
+    <mat-tab-group mat-align-tabs="center"  [(selectedIndex)]="activeTab" (selectedIndexChange)="activeTab = $event" (click)="swapList(userListArray[activeTab])" dynamicHeight animationDuration="0ms" [ngStyle]="{width:'90%'}">
 
-    <form #AddListItem="ngForm" (ngSubmit)="onSubmitList()" *ngIf="hideAddList">
-        <div class="addList">
-        <mat-form-field>
-            <input matInput placeholder="Add New List" [(ngModel)]="NewListName" name="NewListName">
-        </mat-form-field>
-        <button mat-raised-button color="primary" [disabled]=!(NewListName)>Add</button>
-        </div>
-        </form>
+    <mat-tab *ngFor="let list of userListArray" [label]="list">
+        <ng-template matTabContent>
 
+                <div class = "ListContent">
+                    <form #AddListItem="ngForm" (ngSubmit)="onSubmit()">
+                        <div class = "ListContentControls">
 
-
-
-
-</div>
-
-<div class ="ListItems">
-<mat-card>
-<mat-card-content>
-    <button mat-icon-button  aria-hidden="false" aria-label="Add Icon" (click)="toggleHideAddItem()">
-        <mat-icon>{{AddorSub}}</mat-icon>
-    </button>
-
-    <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="onDelete()">
-        <mat-icon>delete</mat-icon>
-    </button>
-    <form #AddListItem="ngForm" (ngSubmit)="onSubmit()" *ngIf="hideAddItem">
-        <div class="addItem">
-        <mat-form-field>
-            <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
-        </mat-form-field>
-        <button mat-raised-button color="primary" [disabled]=!(NewListItem.Item)>Add</button>
-        </div>
-        </form>
-
-<mat-selection-list #selectionList [(ngModel)]="SelectedListItems.Items">
-    <mat-list-option *ngFor="let item of LocalList.Items" [value]="item">
-        {{item}}
-    </mat-list-option>
-</mat-selection-list>
-</mat-card-content>
-</mat-card>
+                        <mat-form-field>
+                            <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
+                        </mat-form-field>
+                        <button mat-icon-button color="primary" [disabled]=!(NewListItem.Item)><mat-icon>add</mat-icon></button>
+                        <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="onDelete()">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                        </form>
+                        <mat-card>
+                        <mat-card-content>
+                <mat-selection-list #selectionList [(ngModel)]="SelectedListItems.Items">
+                    <mat-list-option *ngFor="let item of LocalList.Items" [value]="item" [ngStyle]="{wordWrap: 'break-word'}">
+                        {{item}}
+                    </mat-list-option>
+                </mat-selection-list>
+                </mat-card-content>
+                </mat-card>
+            </div>
+        </ng-template>
+      </mat-tab>
+      
+    </mat-tab-group>
 </div>
 </div>
 </div>

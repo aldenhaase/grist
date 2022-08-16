@@ -1,0 +1,9 @@
+<form #AddListItem="ngForm">
+    <div class="deleteList">
+    <h2>Delete {{data.listName}}?</h2>
+    </div>
+    </form>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">Cancel</button>
+        <button mat-button [mat-dialog-close]="data.listName" cdkFocusInitial>Delete</button>
+      </div>
