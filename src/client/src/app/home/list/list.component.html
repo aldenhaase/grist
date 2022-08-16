@@ -18,7 +18,7 @@
     
           </mat-menu>
 
-    <mat-tab-group mat-align-tabs="center"  [(selectedIndex)]="activeTab" (selectedIndexChange)="activeTab = $event" (click)="swapList(userListArray[activeTab])" dynamicHeight animationDuration="0ms" [ngStyle]="{width:'90%'}">
+    <mat-tab-group mat-align-tabs="center" [(selectedIndex)]="activeTab" (selectedIndexChange)="swapList(userListArray[$event])" dynamicHeight animationDuration="0ms" [ngStyle]="{width:'90%'}">
 
     <mat-tab *ngFor="let list of userListArray" [label]="list">
         <ng-template matTabContent>

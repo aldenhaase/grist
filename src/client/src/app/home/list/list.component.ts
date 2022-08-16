@@ -27,6 +27,8 @@ export class ListComponent implements OnInit, OnDestroy {
 
 
   public currentList:string = ""
+
+  public isPolling:boolean = false
   
   public hideAddItem:boolean = false;
 
@@ -76,6 +78,7 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
 
+
     private getObserver = {
       next: (data: User_List) => {
         this.SyncList.Items = data?.Items || [];
@@ -84,7 +87,10 @@ export class ListComponent implements OnInit, OnDestroy {
     complete:() =>{
       this.switchLists()
       this.clearField();
-      this.startPolling()
+      if (!this.isPolling){
+        this.isPolling=true
+        this.startPolling()
+      }
     },
       error: (error: any) => console.log(error)
     }
@@ -132,15 +138,13 @@ export class ListComponent implements OnInit, OnDestroy {
       }
     }
 
+
     private addEnumerateObserver = {
       next: (data: string[]) =>{
         this.userListArray = data || [];
             }, 
       error: (error: any) => console.log(error),
       complete: () =>{
-        this.currentList = this.NewListName
-        this.activeTab = this.userListArray.indexOf(this.currentList)
-        this.NewListName = ""
         this.getList()
       }
     }
@@ -291,17 +295,21 @@ public deleteList(){
     getUserListReq.subscribe(this.deleteObserver);
   }
 
+
   public mergeLists(){
     this.SyncList.Items.forEach(item => {
       if (!this.LocalList.Items.includes(item)){
         this.LocalList.Items.push(item)
       }
     })
-    this.LocalList.Items.forEach((item,index) => {
-      if(!this.SyncList.Items.includes(item)){
-            this.LocalList.Items.splice(index,1)
-      }
-    })
+    var index = this.LocalList.Items.length -1
+    while(index != -1){
+      if(!this.SyncList.Items.includes(this.LocalList.Items[index])){
+        this.LocalList.Items.splice(index,1)
+   }
+   index -= 1
+    }
+    this.LocalList.Last_Modified = this.SyncList.Last_Modified
   }
 
   public mergeListNameArray(){
@@ -315,16 +323,18 @@ public deleteList(){
         this.userListArray.push(item)
       }
     })
-    this.userListArray.forEach((item,index) => {
-      if(!this.syncUserListArray.includes(item)){
-            this.userListArray.splice(index,1)
-      }
-    })
+
+    var index = this.userListArray.length -1
+    while(index != -1){
+      if(!this.syncUserListArray.includes(this.userListArray[index])){
+        this.userListArray.splice(index,1)
+   }
+   index -= 1
+    }
   }
 
   public setCurrentList(listName:string){
     this.currentList = listName
-    this.activeTab = this.userListArray.indexOf(this.currentList)
   }
 
   public swapList(listName:string){
@@ -333,11 +343,9 @@ public deleteList(){
   }
 
   public switchLists(){
-    if (this.SyncList.Items.length == 0){
       this.LocalList.Items = []
-    }
       this.SyncList.Items.forEach((item, index) => {
-        this.LocalList.Items[index] = item
+        this.LocalList.Items.push(item)
       })
       this.LocalList.Last_Modified = this.SyncList.Last_Modified
   }
@@ -348,12 +356,18 @@ public deleteList(){
 
 
   public onSubmit(){
+    if(this.LocalList.Items.includes(this.NewListItem.Item)){
+      return
+    }
     this.LocalList.Items.push(this.NewListItem.Item)
     this.addListItem()
   }
 
 
   public onSubmitList(){
+    this.currentList = this.NewListName
+    this.userListArray.push(this.NewListName)
+    this.activeTab =  this.userListArray.indexOf(this.NewListName)
     this.addNewList()
     this.hideAddList = false
     this.AddorSubList = "add"

@@ -160,6 +160,11 @@ func SetUserList(username string, ctx context.Context, newItem string, listName 
 	if len(list.Items) > 100 {
 		return types.User_List{}, errors.New("too many items")
 	}
+	for _, v := range list.Items {
+		if v == newItem {
+			return types.User_List{}, errors.New("no dups")
+		}
+	}
 	list.Items = append(list.Items, newItem)
 	list.Last_Modified = time.Now()
 	_, err = datastore.Put(ctx, key, &list)
