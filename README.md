@@ -1,2 +1,2 @@
-# lyster
+# lystr
 Collaborative List App
