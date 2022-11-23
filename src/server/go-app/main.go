@@ -33,6 +33,8 @@ func setupHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/getRegistrationCookies", endpoints.GetRegistrationCookies)
 	mux.HandleFunc("/checkForUpdates", endpoints.CheckForUpdates)
 	mux.HandleFunc("/checkListArray", endpoints.CheckListArray)
+	////NEW
+	mux.HandleFunc("/cookieAuthenticator", endpoints.AuthenticateCookie)
 	mux.HandleFunc("/", root)
 }
 

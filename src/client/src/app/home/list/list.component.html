@@ -28,7 +28,7 @@
                         <div class = "ListContentControls">
 
                         <mat-form-field>
-                            <input matInput placeholder="Add List Item" [(ngModel)]="NewListItem.Item" name="newListItem">
+                            <input matInput placeholder="Add List Item" autocomplete="off" [(ngModel)]="NewListItem.Item" name="newListItem">
                         </mat-form-field>
                         <button mat-icon-button color="primary" [disabled]=!(NewListItem.Item)><mat-icon>add</mat-icon></button>
                         <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="onDelete()">

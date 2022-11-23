@@ -7,9 +7,6 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "dev:ssr": "ng run client:serve-ssr",
-    "serve:ssr": "node dist/client/server/main.js",
-    "build:ssr": "ng build && ng run client:server",
     "build:dev": "ng build --configuration development && ng run client:server:development",
     "prerender": "ng run client:prerender"
   },

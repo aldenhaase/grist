@@ -14,4 +14,4 @@ def apiStart():
     server.start()
 apiStart()
 
-os.system("cd /workspace/client && npm install && cd /launcher && npm run dev:ssr")
+os.system("cd /workspace/client && npm install && cd /launcher && npm run dev")
