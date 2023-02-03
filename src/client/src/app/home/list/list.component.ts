@@ -169,7 +169,7 @@ export class AddCollaboratorDialog {
     @Inject(MAT_DIALOG_DATA) public data: CollaboratorDialogData,
   ) {}
   async checkUsername(username: string){
-    this.data.valid = !await firstValueFrom(this.usernameService.checkUsername(this.data.collaborator));
+    this.data.valid = !await(this.usernameService.checkUsername(this.data.collaborator));
   }
   onNoClick(): void {
     this.dialogRef.close();

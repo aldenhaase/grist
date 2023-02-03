@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"encoding/json"
 	"net/http"
 	"server/auth"
 	"server/dbFuncs"
@@ -13,6 +14,8 @@ import (
 func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 	ctx := appengine.NewContext(req)
 	cookie, ErrNoCookie := req.Cookie(lystrTypes.RCookie_t)
+	encoder := json.NewEncoder(res)
+
 	var userIP = extractors.ExtractUserIP(req)
 	if userIP == "" {
 		res.WriteHeader(http.StatusBadRequest)
@@ -31,4 +34,5 @@ func RegisterNewUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	dbFuncs.AddNewUserToDatabase(res, req, ctx)
+	encoder.Encode(true)
 }

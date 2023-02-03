@@ -17,13 +17,13 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean> {
     return this.authenticator.checkForSessionCookie().pipe(map((authenticated: boolean)=>{
             if(!authenticated){
-              this.router.navigate(['login']); 
+              this.router.navigate(['register']); 
               return false
             }
             return true;
             }), 
             catchError((error)=>{
-              this.router.navigate(['login']);
+              this.router.navigate(['register']);
               return of(false)
             }));
   }
