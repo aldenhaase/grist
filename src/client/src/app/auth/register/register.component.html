@@ -9,7 +9,7 @@
           username is invalid / taken
         </mat-error>
         <mat-error *ngIf="password.length > 0 && !passwordIsValid">
-          password > 3 characters
+          password is invalid
         </mat-error>
         <mat-form-field>
           <input matInput placeholder="List Name" [(ngModel)]="username" (ngModelChange) = "checkUsername()"name="username">
@@ -25,7 +25,7 @@
           </mat-error>
         </mat-form-field>
         <br>
-        <button mat-raised-button color="primary" [disabled]="!(usernameIsValid && passwordIsValid)"> Create </button>
+        <button mat-raised-button color="primary" [disabled]="!(usernameIsValid && passwordIsValid && password.length > 0 && username.length > 0)"> Create </button>
       </form>
     </mat-card-content>
   </mat-card>

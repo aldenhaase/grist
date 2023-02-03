@@ -13,6 +13,7 @@ import (
 func LogIn(res http.ResponseWriter, req *http.Request) {
 	ctx := appengine.NewContext(req)
 	var userInfo lystrTypes.UserQuery
+	encoder := json.NewEncoder(res)
 	decoder := json.NewDecoder(req.Body)
 	decoder.DisallowUnknownFields()
 
@@ -30,4 +31,5 @@ func LogIn(res http.ResponseWriter, req *http.Request) {
 
 	cookie := auth.GenerateSessionCookie(userInfo)
 	http.SetCookie(res, cookie)
+	encoder.Encode(true)
 }
