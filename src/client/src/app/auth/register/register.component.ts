@@ -1,84 +1,34 @@
 import { Component,} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { Router } from '@angular/router';
+import { RegisterService } from 'src/app/services/register.service';
+import { UsernameCheckerService } from 'src/app/services/username-checker.service';
+import { PasswordCheckerService } from 'src/app/services/password-checker.service';
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent{
+  public usernameIsValid$ = new Observable<boolean>;
+  public passwordIsValid$ = new Observable<boolean>;
   password: string = '';
   username: string = '';
-  userValid: boolean = false;
-  userReason: string = '';
-  passValid: boolean = false;
-  passReason: string = '';
-  constructor(private http: HttpClient, private router: Router) { }
-    private observer = {
-      error: (error: any) => console.log("failed to create list"),
-      complete: () => this.router.navigate(['/login']),
-    }
-
-    private getCookieObserver = {
-      error: (error: any) => console.log("failed to get registration cookie"),
-      complete: async () => {
-        var hash = await this.digest(this.password)
-        var hashString = this.digestToString(hash)
-        var registerReq = this.http.post<registerUserResponse>(environment.API_URL + "/registerNewUser", {username: this.username, password: hashString}, {withCredentials: true});
-        registerReq.subscribe(this.observer)
-      }
-    }
+  constructor(private registerService: RegisterService, 
+              private usernameService: UsernameCheckerService,
+              private passwordService: PasswordCheckerService) { }
 
   public async onSubmit() {
-    var getRegCookies = this.http.get<registerUserResponse>(environment.API_URL + "/getRegistrationCookies", {withCredentials: true});
-    getRegCookies.subscribe(this.getCookieObserver)
-  }
-  private digestToString(buffer: ArrayBuffer){
-    const byteArray = new Uint8Array(buffer);
-
-    const hexCodes = [...byteArray].map(value => {
-      const hexCode = value.toString(16);
-      const paddedHexCode = hexCode.padStart(2, '0');
-      return paddedHexCode;
-    });
-  
-    return hexCodes.join('');
+    this.registerService.sendRegisterRequest(this.username, this.password);
   }
 
-  private async digest(text: string){
-    var encoder = new TextEncoder();
-    var encoded = encoder.encode(this.username.normalize())
-    var hash = await crypto.subtle.digest("SHA-256", encoded);
-    return hash
+  public checkUsername(){ 
+    this.usernameIsValid$ = this.usernameService.checkUsername(this.username);
   }
-  public checkUsername(){      
-    if(this.username.length < 1){
-      this.userValid = false;
-      this.userReason = "listname must exist"
-      return
-    }
-        this.http.post<usernameResponse>(environment.API_URL + "/checkUsername", {username: this.username}).subscribe(data => {
-        this.userValid = !data.exists;
-        this.userReason = data.reason;
-  })
-  }
+
   public checkPassword(){
-    if(this.password.length < 1){
-      this.passValid = false;
-      this.passReason = "password must be longer than 1"
-      return
-    }
-   this.passValid = true; 
+    this.passwordIsValid$ = this.passwordService.checkPassword(this.password)
   }
 
 
 }
-interface registerUserResponse{
-  status: number;
-  error:  string;
-}
-interface usernameResponse{
-    exists: boolean;
-    reason: string;
-}
+

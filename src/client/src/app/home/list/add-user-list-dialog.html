@@ -7,5 +7,5 @@
     </form>
     <div mat-dialog-actions>
         <button mat-button (click)="onNoClick()">Cancel</button>
-        <button mat-button [mat-dialog-close]="data.listName" cdkFocusInitial>Submit</button>
+        <button mat-button [disabled]=!(data.listName) [mat-dialog-close]="data.listName">Submit</button>
       </div>

@@ -1,15 +1,19 @@
 
 <div class="AuthenticationContainer">
 <div class = "AuthenticationCard">
+<div *ngIf="{
+  usernameIsValid: usernameIsValid$ | async,
+  passwordIdValid: passwordIsValid$ | async
+  } as data">
 <mat-card>
     <mat-card-content>
       <form #login="ngForm" (ngSubmit)="onSubmit()">
         <h2 class ="AuthenticationHeader">Create List</h2>
-        <mat-error *ngIf="!userValid && username.length > 0">
-          {{userReason}}
+        <mat-error *ngIf="!data.usernameIsValid">
+          username is invalid
         </mat-error>
-        <mat-error *ngIf="!passValid && password.length > 0">
-          {{passValid}}
+        <mat-error *ngIf="!data.passwordIdValid">
+          password is invalid
         </mat-error>
         <mat-form-field>
           <input matInput placeholder="List Name" [(ngModel)]="username" (ngModelChange) = "checkUsername()"name="username">
@@ -25,7 +29,7 @@
           </mat-error>
         </mat-form-field>
         <br>
-        <button mat-raised-button color="primary" [disabled]="!((userValid) && (passValid))">Create</button>
+        <button mat-raised-button color="primary" [disabled]="!(data.usernameIsValid&& data.passwordIdValid)"> Create </button>
       </form>
     </mat-card-content>
   </mat-card>
@@ -37,5 +41,6 @@
     </nav>
   </mat-card-content>
   </mat-card>
+</div>
 </div>
 </div>

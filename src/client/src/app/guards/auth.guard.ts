@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthStatusService } from '../services/auth-status.service';
-import { sessionAuthenticationResponse } from '../types/sessionAuthentication';
 @Injectable({
   providedIn: 'root'
 })
@@ -16,12 +15,12 @@ export class AuthGuard implements CanActivate {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> {
-    return this.authenticator.checkForSessionCookie().pipe(map((response: sessionAuthenticationResponse)=>{
-            if(response.Authenticated){
-              return true;
+    return this.authenticator.checkForSessionCookie().pipe(map((authenticated: boolean)=>{
+            if(!authenticated){
+              this.router.navigate(['login']); 
+              return false
             }
-            this.router.navigate(['login']); 
-            return false;
+            return true;
             }), 
             catchError((error)=>{
               this.router.navigate(['login']);
