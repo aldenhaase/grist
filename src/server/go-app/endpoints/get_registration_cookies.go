@@ -2,23 +2,23 @@ package endpoints
 
 import (
 	"net/http"
+	"server/auth"
+	"server/extractors"
+	"server/lystrTypes"
 )
 
 func GetRegistrationCookies(res http.ResponseWriter, req *http.Request) {
-	_, cookieExists := checkForRegistrationCookie(res, req)
+	_, ErrNoCookie := req.Cookie(lystrTypes.RCookie_t)
 
-	var userIP = extractUserIP(req)
+	userIP := extractors.ExtractUserIP(req)
 	if userIP == "" {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if cookieExists {
+	if ErrNoCookie == nil {
 		return
 	}
-	cookie, err := generateCookie(userIP)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	cookie := auth.GenerateRegCookie(userIP)
+
 	http.SetCookie(res, cookie)
 }

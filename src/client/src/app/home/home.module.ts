@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list'
-import { AddListDialog, DeleteListDialog, ListComponent } from './list/list.component';
+import { ListComponent, AddListDialog, DeleteListDialog, AddCollaboratorDialog } from './list/list.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,8 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatMenuModule} from '@angular/material/menu';
 import { MatDialogModule} from '@angular/material/dialog';
+import {MatTableModule} from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
 
 
 
@@ -20,7 +22,8 @@ import { MatDialogModule} from '@angular/material/dialog';
   declarations: [
     ListComponent,
     AddListDialog,
-    DeleteListDialog
+    DeleteListDialog,
+    AddCollaboratorDialog
   ],
   imports: [
     CommonModule,
@@ -36,6 +39,8 @@ import { MatDialogModule} from '@angular/material/dialog';
     MatTabsModule,
     MatMenuModule,
     MatDialogModule,
+    MatTableModule,
+    MatPaginatorModule,
   ]
 })
 export class HomeModule { }

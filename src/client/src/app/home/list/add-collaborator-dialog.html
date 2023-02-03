@@ -1,0 +1,11 @@
+<form #AddCollaborator="ngForm">
+    <div class="addCollaborator">
+    <mat-form-field>
+        <input matInput [(ngModel)]="data.collaborator" (ngModelChange) = "checkUsername(data.collaborator)" autocomplete = "off" placeholder="Add Collaborator" name="Add New Collaborator">
+    </mat-form-field>
+    </div>
+    </form>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">Cancel</button>
+        <button mat-button [disabled]="!(data.valid)"[mat-dialog-close]="data.collaborator">Submit</button>
+      </div>
