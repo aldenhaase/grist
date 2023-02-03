@@ -9,8 +9,8 @@ import { Observable, firstValueFrom } from 'rxjs';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent{
-  public usernameIsValid = false
-  public passwordIsValid = false
+  public usernameIsValid = true
+  public passwordIsValid = true
   password: string = '';
   username: string = '';
   constructor(private registerService: RegisterService, 

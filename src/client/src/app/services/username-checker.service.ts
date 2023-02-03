@@ -16,7 +16,7 @@ export class UsernameCheckerService {
   }
 
   private checkIfValid(){
-    if(this.username.length < 1){
+    if(this.username.length == 0){
       return new Observable<boolean>(observer => {
         observer.next( true )
         observer.complete()

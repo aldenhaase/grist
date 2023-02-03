@@ -1,19 +1,25 @@
 package auth
 
 import (
+	"context"
 	"net/http"
+	"server/dbFuncs"
 	"server/deserializers"
 	"server/lystrTypes"
 	"time"
 )
 
-func ValidateSessionCookie(req *http.Request) bool {
+func ValidateSessionCookie(req *http.Request, ctx context.Context) bool {
 	cookie, err := req.Cookie(lystrTypes.SCookie_t)
 	if err != nil {
 		return false
 	}
 	sessionC := deserializers.SessionCookie(cookie.Value)
 	if !VerifySignature(sessionC.Signature, sessionC.Username, sessionC.Expiration) {
+		return false
+	}
+	userRecord := dbFuncs.GetUserRecord(sessionC.Username, ctx)
+	if userRecord.Username == "" {
 		return false
 	}
 	return true

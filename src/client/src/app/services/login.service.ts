@@ -13,13 +13,11 @@ export class LoginService {
 
   constructor(private http:HttpClient,private router: Router) { }
 
-  private observer = {
-    error: (error: any) => console.log(error),
-    complete: () => this.router.navigate(['/'])
-  }
-
   public async sendLoginRequest(username: string, password: string){
       var hashString = await HashService.getHash(password);
-      await firstValueFrom(this.http.post(environment.API_URL + "/logIn", {username: username, password: hashString}, {withCredentials: true}))
+      var res = await firstValueFrom(this.http.post(environment.API_URL + "/logIn", {username: username, password: hashString}, {withCredentials: true}))
+      if(res){
+        this.router.navigate(['/'])
+      }
   }
 }

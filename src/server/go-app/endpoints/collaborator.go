@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"net/http"
-	"server/auth"
 	"server/dbFuncs"
 	"server/extractors"
 
@@ -11,10 +10,6 @@ import (
 
 func Collaborator(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
-	if !auth.ValidateSessionCookie(req) {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
-	}
 	ctx := appengine.NewContext(req)
 	username := extractors.ExtractUserSC(req).Username
 	principalRecord := dbFuncs.GetUserRecord(username, ctx)

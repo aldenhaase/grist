@@ -13,7 +13,7 @@ export class PasswordCheckerService {
   }
 
   private checkIfValid(password: string){
-    if(password.length < 3){
+    if(password.length == 0){
       return new Observable<boolean>(observer => {
         observer.next( false )
         observer.complete()

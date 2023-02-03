@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, Inject} from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom, interval } from 'rxjs';
 import { collection, item, list} from 'src/app/types/listTypes';
 import { ListGrabberService } from 'src/app/services/list-grabber.service';
 import { ListSetterService } from 'src/app/services/list-setter.service';
@@ -38,8 +38,9 @@ export class ListComponent implements OnInit{
   addCollab$ = new Observable<collaboratorQuery>;
   deleteList$ = new Observable<list>;
   deleteItem$ = new Observable<item>;
-  activeList = 0
-  selectedItems:item[] = []
+  activeList = 0;
+  selectedItems:item[] = [];
+  interval:any
 
   collaborator = "";
   collabList = "";
@@ -48,6 +49,9 @@ export class ListComponent implements OnInit{
   async ngOnInit(){
     this.remoteCollection$ = this.listGrabberService.grab()
     await this.mergeService.merge(this.remoteCollection$, this.localCollection)
+    this.interval = setInterval(() => { 
+      this.mergeService.merge(this.remoteCollection$, this.localCollection); 
+  }, 1000);
   }
   async addItem(){
     var newItem = {value: this.newValue, marked: false, uuid: self.crypto.randomUUID()};
@@ -79,6 +83,9 @@ export class ListComponent implements OnInit{
   }
   async mergeCollections(){
     this.mergeService.merge(this.remoteCollection$, this.localCollection)
+  }
+  trackByFn(index:any, item:any){
+    return index
   }
   copy(object:any){
     return JSON.parse(JSON.stringify(object))
