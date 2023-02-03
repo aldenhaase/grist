@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { HashService } from 'src/app/services/hash.service';
+import { Observable, firstValueFrom} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,6 @@ export class LoginService {
 
   public async sendLoginRequest(username: string, password: string){
       var hashString = await HashService.getHash(password);
-      var loginReq = this.http.post(environment.API_URL + "/logIn", {username: username, password: hashString}, {withCredentials: true});
-      loginReq.subscribe(this.observer);
+      await firstValueFrom(this.http.post(environment.API_URL + "/logIn", {username: username, password: hashString}, {withCredentials: true}))
   }
 }

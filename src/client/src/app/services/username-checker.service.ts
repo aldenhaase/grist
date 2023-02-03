@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -9,9 +9,10 @@ export class UsernameCheckerService {
   username = "";
   constructor(private http:HttpClient) { }
 
-  public checkUsername(username: string):Observable<boolean>{
+  async checkUsername(username: string){
     this.username = username;
-    return this.checkIfValid() || this.checkIfTaken();
+    var res = await firstValueFrom(this.checkIfValid() || this.checkIfTaken());
+    return res
   }
 
   private checkIfValid(){
