@@ -90,7 +90,7 @@ export class ListComponent implements OnInit{
   }
 
   async setCollection(){
-    clearInterval(this.syncTimer)
+   clearInterval(this.syncTimer)
    await this.listSetterService.set(this.localCollection)
    this.syncTimer = this.setSyncTimer()
   }
