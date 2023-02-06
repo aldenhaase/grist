@@ -52,7 +52,6 @@ export class ListComponent implements OnInit{
   }
 
   setSyncTimer(){
-    console.log("timer added")
     return setInterval(() => { 
       this.mergeService.merge(this.remoteCollection$, this.localCollection); 
   }, 2000);
@@ -82,7 +81,6 @@ export class ListComponent implements OnInit{
       return item.marked == true;
     }))
     this.localCollection.lists[this.activeList].items = this.localCollection.lists[this.activeList].items.filter(function (item) {
-      console.log(item + " item")
       return item.marked == false;
     })
 
