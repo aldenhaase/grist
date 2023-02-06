@@ -40,7 +40,7 @@ export class ListComponent implements OnInit{
   deleteItem$ = new Observable<item>;
   activeList = 0;
   selectedItems:item[] = [];
-  interval:any
+  syncTimer: ReturnType<typeof setTimeout> = this.setSyncTimer()
 
   collaborator = "";
   collabList = "";
@@ -49,9 +49,13 @@ export class ListComponent implements OnInit{
   async ngOnInit(){
     this.remoteCollection$ = this.listGrabberService.grab()
     await this.mergeService.merge(this.remoteCollection$, this.localCollection)
-    this.interval = setInterval(() => { 
+  }
+
+  setSyncTimer(){
+    console.log("timer added")
+    return setInterval(() => { 
       this.mergeService.merge(this.remoteCollection$, this.localCollection); 
-  }, 1000);
+  }, 2000);
   }
   async addItem(){
     var newItem = {value: this.newValue, marked: false, uuid: self.crypto.randomUUID()};
@@ -59,34 +63,71 @@ export class ListComponent implements OnInit{
     this.newValue = ""
     this.setCollection()
   }
-   addCollaberator(collaborator: string){
-    this.collabRequestService.addCollaborator(this.localCollection.lists[this.activeList].listName, collaborator)
+   async addCollaberator(collaborator: string){
+    clearInterval(this.syncTimer)
+    await this.collabRequestService.addCollaborator(this.localCollection.lists[this.activeList].listName, collaborator)
+    this.syncTimer = this.setSyncTimer()
   }
 
   async deleteList(){
+    clearInterval(this.syncTimer)
     var listToDelete = this.localCollection.lists[this.activeList]
     this.localCollection.lists.splice(this.activeList,1)
-    this.listDeleterService.delete(listToDelete)
+    await this.listDeleterService.delete(listToDelete)
+    this.syncTimer = this.setSyncTimer()
   }
   async deleteSelected(){
+    clearInterval(this.syncTimer)
     var itemsToDelete:item[] = this.copy(this.localCollection.lists[this.activeList].items.filter(function (item) {
       return item.marked == true;
     }))
     this.localCollection.lists[this.activeList].items = this.localCollection.lists[this.activeList].items.filter(function (item) {
+      console.log(item + " item")
       return item.marked == false;
     })
-    this.itemDeleterService.delete(itemsToDelete)
+
+    await this.itemDeleterService.delete(itemsToDelete)
+    this.syncTimer = this.setSyncTimer()
+
   }
 
   async setCollection(){
-    this.listSetterService.set(this.localCollection)
+    clearInterval(this.syncTimer)
+   await this.listSetterService.set(this.localCollection)
+   this.syncTimer = this.setSyncTimer()
   }
+
+  addMarkAndSet(item:item){
+    item.marked = !item.marked
+    this.setCollection()
+  }
+
+  checkForMarkedItems(){
+    var marked = false
+     this.localCollection.lists.forEach(list =>{
+      list.items.forEach(item =>{
+        if (item.marked){
+          marked = true
+        }
+      })
+    })
+    return marked
+  }
+
   async mergeCollections(){
-    this.mergeService.merge(this.remoteCollection$, this.localCollection)
+    clearInterval(this.syncTimer)
+    await this.mergeService.merge(this.remoteCollection$, this.localCollection)
+    this.syncTimer = this.setSyncTimer()
+
   }
-  trackByFn(index:any, item:any){
-    return index
+  
+  trackListByFn(index:any, list:list){
+    return list.uuid
   }
+  trackItemByFn(index:any, item:item){
+    return item.uuid
+  }
+  
   copy(object:any){
     return JSON.parse(JSON.stringify(object))
   }

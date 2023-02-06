@@ -10,6 +10,10 @@ export class MergeService {
   constructor() { }
   async merge(remote$: Observable<collection>, local: collection){
     const remote = await firstValueFrom(remote$)
+    const remoteString = JSON.stringify(remote)
+    const localString = JSON.stringify(local)
+    if(remoteString != localString){
       local.lists = remote.lists
+    }
   }
 }

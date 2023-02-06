@@ -9,6 +9,9 @@
             </button>
       
             <mat-menu #menu="matMenu">
+                <button *ngIf="checkForMarkedItems()" mat-menu-item  aria-hidden="false" aria-label="Delete Icon" (click)="deleteSelected()">
+                    <span>Delete Selected</span>
+                  </button>
               <button mat-menu-item  aria-hidden="false" aria-label="Add List Button" (click)="openAddList()">
                   <span>Add List</span>
               </button>
@@ -23,7 +26,7 @@
   
       <mat-tab-group mat-align-tabs="center" [(selectedIndex)]="activeList" (selectedIndexChange)="activeList = $event" dynamicHeight animationDuration="0ms" [ngStyle]="{width:'90%'}">
   
-      <mat-tab *ngFor="let list of localCollection.lists;let listIndex=index; trackBy: trackByFn" [label]="list.listName">
+      <mat-tab *ngFor="let list of localCollection.lists;let listIndex=index; trackBy: trackListByFn" [label]="list.listName">
           <ng-template matTabContent>
   
                   <div class = "ListContent">
@@ -33,15 +36,12 @@
                               <input matInput placeholder="Add Item" autocomplete="off" [(ngModel)]="newValue" name="newValue">
                           </mat-form-field>
                           <button mat-icon-button color="primary" [disabled]=!(newValue)><mat-icon>add</mat-icon></button>
-                          <button [disabled]="!selectionList.selectedOptions.selected.length" mat-icon-button  aria-hidden="false" aria-label="Delete Icon" (click)="deleteSelected()">
-                            <mat-icon>delete</mat-icon>
-                          </button>
                       </div>
                           </form>
                           <mat-card>
                           <mat-card-content>
                   <mat-selection-list #selectionList>
-                      <mat-list-option *ngFor="let item of list.items;let itemIndex=index" [value]="item.value" [(selected)]="item.marked" (click)="setCollection()" [ngStyle]="{wordWrap: 'break-word'}">
+                      <mat-list-option *ngFor="let item of list.items;let itemIndex=index; trackBy: trackItemByFn" [value]="item.value" [selected]="item.marked" (click)="addMarkAndSet(item)" [ngStyle]="{wordWrap: 'break-word'}">
                           {{item.value}}
                       </mat-list-option>
                   </mat-selection-list>
