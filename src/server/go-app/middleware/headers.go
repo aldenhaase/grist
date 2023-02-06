@@ -27,7 +27,7 @@ func limitBodySize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		//check what type of request and set body size
 
-		req.Body = http.MaxBytesReader(res, req.Body, 2000)
+		req.Body = http.MaxBytesReader(res, req.Body, 20000)
 		next.ServeHTTP(res, req)
 	})
 }
