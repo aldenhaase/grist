@@ -1,11 +1,11 @@
 <form #AddListItem="ngForm">
     <div class="addList">
-    <mat-form-field>
-        <input matInput [(ngModel)]="data.listName" autocomplete = "off" placeholder="Add New List" name="Add New List">
-    </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="data.listName" autocomplete="off" placeholder="Add New List" name="Add New List">
+      </mat-form-field>
     </div>
-    </form>
-    <div mat-dialog-actions>
-        <button mat-button (click)="onNoClick()">Cancel</button>
-        <button mat-button [disabled]=!(data.listName) [mat-dialog-close]="data.listName">Submit</button>
-      </div>
+  </form>
+  <div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <button mat-button [disabled]=!(data.listName) [mat-dialog-close]="data.listName">Submit</button>
+  </div>
