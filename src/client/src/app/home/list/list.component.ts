@@ -57,10 +57,12 @@ export class ListComponent implements OnInit{
   }, 2000);
   }
   async addItem(){
+    clearInterval(this.syncTimer)
     var newItem = {value: this.newValue, marked: false, uuid: self.crypto.randomUUID()};
     this.localCollection.lists[this.activeList].items = this.localCollection.lists[this.activeList].items?.concat(newItem) || [newItem]
     this.newValue = ""
-    this.setCollection()
+    await this.listSetterService.set(this.localCollection)
+    this.syncTimer = this.setSyncTimer()
   }
    async addCollaberator(collaborator: string){
     clearInterval(this.syncTimer)
@@ -89,15 +91,11 @@ export class ListComponent implements OnInit{
 
   }
 
-  async setCollection(){
-   clearInterval(this.syncTimer)
-   await this.listSetterService.set(this.localCollection)
-   this.syncTimer = this.setSyncTimer()
-  }
-
-  addMarkAndSet(item:item){
+  async addMarkAndSet(item:item){
+    clearInterval(this.syncTimer)
     item.marked = !item.marked
-    this.setCollection()
+    await this.listSetterService.set(this.localCollection)
+    this.syncTimer = this.setSyncTimer()
   }
 
   checkForMarkedItems(){
@@ -135,11 +133,13 @@ export class ListComponent implements OnInit{
       data:{listName: ""}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(async result => {
       if(result){
+        clearInterval(this.syncTimer)
         this.localCollection.lists = this.localCollection.lists.concat({listName: result, items: [], uuid: self.crypto.randomUUID()})
         this.activeList = this.localCollection.lists.length-1
-        this.setCollection()
+        await this.listSetterService.set(this.localCollection)
+        this.syncTimer = this.setSyncTimer()
       }
     });
   }
